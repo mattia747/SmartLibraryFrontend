@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartLibrary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styleRegister.css">
+</head>
+<body>
+
+<header class="header">
+  <nav class="navbar">
+    <div class="logo">SmartLibrary</div>
+    <ul class="nav-links">
+      <li><a href="catalog.html">Catalogo</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="#">Profilo</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="main">
+  <section class="hero">
+
+    <h1>Registrati compilando i campi</h1>
+
+    <div class="hero-content">
+
+      <!-- COLONNA SINISTRA: FORM -->
+      <form class="hero-form">
+        <h3>Nome</h3>
+        <input type="text" required>
+
+        <h3>Cognome</h3>
+        <input type="text" required>
+
+        <h3>Età</h3>
+        <input type="number" required>
+
+        <h3>Email</h3>
+        <input type="email" required>
+
+        <h3>Password</h3>
+        <input type="password" required>
+
+        <p>Se sei già registrato effettua il
+          <a href="login.html" class="linkToPage">login</a>
+        </p>
+
+        <button class="btn-primary">Registrati</button>
+      </form>
+
+      <!-- COLONNA DESTRA: GENERI + IMMAGINE -->
+      <div class="hero-right">
+
+        <!-- Generi -->
+        <div class="generi-box">
+          <h3>Seleziona i tuoi generi preferiti</h3>
+
+          <label><input type="checkbox" name="generi" value="fantasy"> Fantasy</label>
+          <label><input type="checkbox" name="generi" value="giallo"> Giallo</label>
+          <label><input type="checkbox" name="generi" value="horror"> Horror</label>
+          <label><input type="checkbox" name="generi" value="romantico"> Romantico</label>
+          <label><input type="checkbox" name="generi" value="thriller"> Thriller</label>
+          <label><input type="checkbox" name="generi" value="storico"> Storico</label>
+          <label><input type="checkbox" name="generi" value="fantascienza"> Fantascienza</label>
+        </div>
+
+        <!-- Immagine sotto -->
+        <img src="img/logoWhite.png" class="hero-img" alt="Logo SmartLibrary">
+
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 SmartLibrary</p>
+</footer>
+
+<!-- JS -->
+<script src="js/main.js"></script>
+
+</body>
+</html>
