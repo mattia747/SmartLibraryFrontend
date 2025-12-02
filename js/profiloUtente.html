@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Profilo - SmartLibrary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #597A88;
+      --primary-light: #6b8c9a;
+      --primary-dark: #496270;
+      --bg: #e8eef1;
+      --text: #090909;
+      --white: #ffffff;
+      --grey: #CAD2C5;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #e8eef1 0%, #d4dfe4 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: var(--white);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .navbar {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-links a {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Main Container */
+    .main {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 2rem;
+    }
+
+    /* Sidebar Profilo */
+    .profile-sidebar {
+      flex: 0 0 300px;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .profile-pic {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--grey) 0%, #e8eef1 100%);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile-pic:hover {
+      transform: scale(1.05);
+      border-color: var(--primary-light);
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .btn-manage {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border-radius: var(--radius);
+      border: 2px solid var(--primary);
+      background-color: var(--primary);
+      color: var(--white);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      margin-top: auto;
+    }
+
+    .btn-manage:hover {
+      background-color: transparent;
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* Books Section */
+    .books-section {
+      flex: 1;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .books-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--grey);
+    }
+
+    .books-header h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn-catalog {
+      padding: 0.7rem 1.5rem;
+      border-radius: var(--radius);
+      border: 2px solid var(--primary);
+      background-color: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-catalog:hover {
+      background-color: var(--primary);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    /* Books Grid Container */
+    .books-container {
+      position: relative;
+      flex: 1;
+      perspective: 2000px;
+      min-height: 500px;
+    }
+
+    .books-page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+      backface-visibility: hidden;
+    }
+
+    .books-page.flip-out {
+      animation: flipOut 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+    }
+
+    .books-page.flip-in {
+      animation: flipIn 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+    }
+
+    @keyframes flipOut {
+      0% {
+        transform: rotateY(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: rotateY(-180deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes flipIn {
+      0% {
+        transform: rotateY(180deg);
+        opacity: 0;
+      }
+      100% {
+        transform: rotateY(0deg);
+        opacity: 1;
+      }
+    }
+
+    .book-card {
+      background: linear-gradient(135deg, var(--bg) 0%, #d4dfe4 100%);
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--grey);
+      transition: all 0.3s ease;
+      min-height: 180px;
+    }
+
+    .book-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      border-color: var(--primary);
+    }
+
+    .book-placeholder {
+      width: 80px;
+      height: 100px;
+      background: var(--primary);
+      border-radius: 4px;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .book-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text);
+    }
+
+    /* Modal dettagli libro */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text);
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background-color: var(--bg);
+      transform: rotate(90deg);
+    }
+
+    .modal-book-cover {
+      width: 120px;
+      height: 160px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 8px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 2rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .modal h3 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .modal-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--grey);
+    }
+
+    .modal-info-label {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .modal-info-value {
+      color: #666;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border-radius: var(--radius);
+      border: 2px solid var(--primary);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .btn-modal-primary {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-modal-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-modal-secondary {
+      background-color: transparent;
+      color: var(--primary);
+    }
+
+    .btn-modal-secondary:hover {
+      background-color: var(--bg);
+    }
+
+    /* Upload immagine profilo */
+    #profilePicInput {
+      display: none;
+    }
+
+    .profile-pic-uploaded {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--grey);
+    }
+
+    .page-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background-color: var(--white);
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background-color: var(--primary);
+      color: var(--white);
+      transform: scale(1.1);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      color: #777;
+      font-weight: 400;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .books-page {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .main {
+        flex-direction: column;
+      }
+
+      .profile-sidebar {
+        flex: 1;
+        width: 100%;
+      }
+
+      .books-page {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .books-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .books-page {
+        grid-template-columns: 1fr;
+      }
+
+      .pagination {
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+  <nav class="navbar">
+    <div class="logo">SmartLibrary</div>
+    <ul class="nav-links">
+      <li><a href="catalog.html">Catalogo</a></li>
+      <li><a href="profile.html">Profilo</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="main">
+  <aside class="profile-sidebar">
+    <div class="profile-pic" id="profilePic">
+      <span id="profilePicText">Immagine profilo modificabile</span>
+    </div>
+    <input type="file" id="profilePicInput" accept="image/*">
+    <h1 class="profile-name">Lorenzo</h1>
+    <button class="btn-manage">Gestisci profilo</button>
+  </aside>
+
+  <section class="books-section">
+    <div class="books-header">
+      <h2>Libri</h2>
+      <a href="catalog.html" class="btn-catalog">Catalogo</a>
+    </div>
+
+    <div class="books-container" id="booksContainer">
+      <!-- Le pagine verranno generate dinamicamente -->
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn" id="prevBtn">‹</button>
+      <span class="page-info" id="pageInfo">1 di 3</span>
+      <button class="page-btn" id="nextBtn">›</button>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 SmartLibrary</p>
+</footer>
+
+<!-- Modal dettagli libro -->
+<div class="modal" id="bookModal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">×</button>
+    <div class="modal-book-cover">📚</div>
+    <h3 id="modalTitle">Titolo Libro</h3>
+    <div class="modal-info">
+      <div class="modal-info-row">
+        <span class="modal-info-label">Autore:</span>
+        <span class="modal-info-value" id="modalAuthor">-</span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Anno:</span>
+        <span class="modal-info-value" id="modalYear">-</span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Genere:</span>
+        <span class="modal-info-value" id="modalGenre">-</span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Stato:</span>
+        <span class="modal-info-value" id="modalStatus">Prenotato</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-secondary" id="btnReturn">Restituisci</button>
+      <button class="btn-modal btn-modal-primary" id="btnRenew">Rinnova prestito</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Dati dei libri di esempio (puoi sostituire con i tuoi dati)
+  const books = [
+    { id: 1, title: "Il Signore degli Anelli", author: "J.R.R. Tolkien", year: 1954, genre: "Fantasy" },
+    { id: 2, title: "1984", author: "George Orwell", year: 1949, genre: "Distopia" },
+    { id: 3, title: "Orgoglio e Pregiudizio", author: "Jane Austen", year: 1813, genre: "Romanzo" },
+    { id: 4, title: "Il Grande Gatsby", author: "F. Scott Fitzgerald", year: 1925, genre: "Romanzo" },
+    { id: 5, title: "Moby Dick", author: "Herman Melville", year: 1851, genre: "Avventura" },
+    { id: 6, title: "Guerra e Pace", author: "Lev Tolstoj", year: 1869, genre: "Storico" },
+    { id: 7, title: "Don Chisciotte", author: "Miguel de Cervantes", year: 1605, genre: "Classico" },
+    { id: 8, title: "L'Odissea", author: "Omero", year: -800, genre: "Epico" },
+    { id: 9, title: "Cent'anni di solitudine", author: "Gabriel García Márquez", year: 1967, genre: "Realismo magico" },
+    { id: 10, title: "Il Piccolo Principe", author: "Antoine de Saint-Exupéry", year: 1943, genre: "Favola" },
+    { id: 11, title: "Delitto e Castigo", author: "Fëdor Dostoevskij", year: 1866, genre: "Psicologico" },
+    { id: 12, title: "Anna Karenina", author: "Lev Tolstoj", year: 1877, genre: "Romanzo" },
+    { id: 13, title: "I Promessi Sposi", author: "Alessandro Manzoni", year: 1827, genre: "Storico" },
+    { id: 14, title: "Madame Bovary", author: "Gustave Flaubert", year: 1857, genre: "Romanzo" },
+    { id: 15, title: "La Divina Commedia", author: "Dante Alighieri", year: 1321, genre: "Poema" },
+    { id: 16, title: "Ulisse", author: "James Joyce", year: 1922, genre: "Modernista" },
+    { id: 17, title: "Il Processo", author: "Franz Kafka", year: 1925, genre: "Esistenzialista" },
+    { id: 18, title: "Fahrenheit 451", author: "Ray Bradbury", year: 1953, genre: "Fantascienza" },
+    { id: 19, title: "Il Ritratto di Dorian Gray", author: "Oscar Wilde", year: 1890, genre: "Gotico" },
+    { id: 20, title: "Le Avventure di Huckleberry Finn", author: "Mark Twain", year: 1884, genre: "Avventura" }
+  ];
+
+  const booksPerPage = 8;
+  const totalPages = Math.ceil(books.length / booksPerPage);
+  let currentPage = 1;
+  let isAnimating = false;
+
+  const container = document.getElementById('booksContainer');
+  const pageInfo = document.getElementById('pageInfo');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function createBookCard(book) {
+    return `
+        <div class="book-card" data-book-id="${book.id}">
+          <div class="book-placeholder">📚</div>
+          <div class="book-title">${book.title}</div>
+        </div>
+      `;
+  }
+
+  function createPage(pageNumber) {
+    const startIdx = (pageNumber - 1) * booksPerPage;
+    const endIdx = startIdx + booksPerPage;
+    const pageBooks = books.slice(startIdx, endIdx);
+
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'books-page';
+    pageDiv.innerHTML = pageBooks.map(book => createBookCard(book)).join('');
+
+    return pageDiv;
+  }
+
+  function updatePage(direction) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const currentPageEl = container.querySelector('.books-page');
+
+    if (currentPageEl) {
+      currentPageEl.classList.add('flip-out');
+
+      setTimeout(() => {
+        currentPageEl.remove();
+        const newPage = createPage(currentPage);
+        newPage.classList.add('flip-in');
+        container.appendChild(newPage);
+
+        setTimeout(() => {
+          newPage.classList.remove('flip-in');
+          isAnimating = false;
+        }, 800);
+      }, 800);
+    } else {
+      const newPage = createPage(currentPage);
+      container.appendChild(newPage);
+      isAnimating = false;
+    }
+
+    updateControls();
+  }
+
+  function updateControls() {
+    pageInfo.textContent = `${currentPage} di ${totalPages}`;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (currentPage > 1 && !isAnimating) {
+      currentPage--;
+      updatePage('prev');
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (currentPage < totalPages && !isAnimating) {
+      currentPage++;
+      updatePage('next');
+    }
+  });
+
+  // Inizializza la prima pagina
+  updatePage();
+
+  // Gestione click sui libri
+  container.addEventListener('click', (e) => {
+    const bookCard = e.target.closest('.book-card');
+    if (bookCard && !isAnimating) {
+      const bookId = parseInt(bookCard.dataset.bookId);
+      const book = books.find(b => b.id === bookId);
+      if (book) {
+        openBookModal(book);
+      }
+    }
+  });
+
+  // Modal dettagli libro
+  const modal = document.getElementById('bookModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalAuthor = document.getElementById('modalAuthor');
+  const modalYear = document.getElementById('modalYear');
+  const modalGenre = document.getElementById('modalGenre');
+  const btnReturn = document.getElementById('btnReturn');
+  const btnRenew = document.getElementById('btnRenew');
+
+  function openBookModal(book) {
+    modalTitle.textContent = book.title;
+    modalAuthor.textContent = book.author;
+    modalYear.textContent = book.year;
+    modalGenre.textContent = book.genre;
+    modal.classList.add('show');
+  }
+
+  function closeBookModal() {
+    modal.classList.remove('show');
+  }
+
+  modalClose.addEventListener('click', closeBookModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeBookModal();
+    }
+  });
+
+  btnReturn.addEventListener('click', () => {
+    alert('Libro restituito con successo!');
+    closeBookModal();
+  });
+
+  btnRenew.addEventListener('click', () => {
+    alert('Prestito rinnovato con successo!');
+    closeBookModal();
+  });
+
+  // Gestione caricamento immagine profilo
+  const profilePic = document.getElementById('profilePic');
+  const profilePicInput = document.getElementById('profilePicInput');
+  const profilePicText = document.getElementById('profilePicText');
+
+  profilePic.addEventListener('click', () => {
+    profilePicInput.click();
+  });
+
+  profilePicInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        profilePicText.style.display = 'none';
+        profilePic.style.background = 'none';
+        profilePic.innerHTML = `<img src="${event.target.result}" class="profile-pic-uploaded" alt="Foto profilo">`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+</body>
+</html>
