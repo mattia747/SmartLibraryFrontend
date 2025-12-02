@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>SmartLibrary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styleLogin.css">
 </head>
 <body>
@@ -12,7 +15,6 @@
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
-      <li><a href="register.html">Registrati</a></li>
       <li><a href="#">Profilo</a></li>
     </ul>
   </nav>
@@ -24,11 +26,11 @@
     <div class="hero-content">
       <form class="hero-form">
         <h3>Username</h3>
-        <input type="text">
+        <input type="text" placeholder="Inserisci username">
         <h3>Password</h3>
-        <input type="password">
+        <input type="password" placeholder="Inserisci password">
         <p>Se non sei registrato, puoi farlo ora <a href="register.html" class="linkToPage">qui</a></p>
-        <button class="btn-primary">Login</button>
+        <button class="btn-primary" type="submit">Login</button>
       </form>
       <img src="img/logoWhite.png" class="hero-img" alt="Logo SmartLibrary">
     </div>
@@ -38,7 +40,6 @@
   <p>&copy; 2025 SmartLibrary</p>
 </footer>
 
-<!-- JS -->
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -2,8 +2,11 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Catalogo Libri – SmartLibrary</title>
+  <title>Catalogo Libri - SmartLibrary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styleCatalog.css">
 </head>
 
@@ -12,7 +15,6 @@
   <nav class="navbar">
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
-      <li><a href="catalog.html">Catalogo</a></li>
       <li><a href="login.html">Login</a></li>
       <li><a href="#">Profilo</a></li>
     </ul>
@@ -20,14 +22,18 @@
 </header>
 
 <main class="main">
-  <h1 class="title">Catalogo dei libri</h1>
+  <section class="hero-catalog">
+    <h1>Esplora il nostro catalogo</h1>
+    <p>Scopri migliaia di libri per ogni genere e interesse</p>
+  </section>
 
-  <div id="books-container" class="books-grid"></div>
+  <div id="books-container" class="books-grid">
+    <!-- I libri dell'API verranno inseriti qui da JavaScript -->
+  </div>
+
   <div id="pagination" class="pagination"></div>
-    <!-- I libri dell’API verranno inseriti qui da JavaScript -->
 </main>
 
-<!-- FOOTER -->
 <footer class="footer">
   <p>&copy; 2025 SmartLibrary</p>
 </footer>
