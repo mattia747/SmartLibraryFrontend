@@ -1,0 +1,4 @@
+-aggiungere libri ✔️
+-aggiungere barra di ricerca ✔️
+-aggiungere filtri ✔️
+-apertura pagina singolo libro:

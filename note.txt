@@ -1,7 +1,0 @@
-nome
-cognome
-età
-email
-username?
-password
-generi preferiti
