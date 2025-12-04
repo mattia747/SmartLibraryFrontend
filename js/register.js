@@ -57,9 +57,10 @@ document.addEventListener('DOMContentLoaded', function() {
       isValid = false;
     }
 
-    // Validazione Generi
-    if (generi.length === 0) {
-      showError(document.querySelector('.generi-box'), 'Seleziona almeno un genere');
+    // Validazione Generi (solo se esiste il contenitore dei generi)
+    const generiBox = document.querySelector('.generi-box');
+    if (generiBox && generi.length === 0) {
+      showError(generiBox, 'Seleziona almeno un genere');
       isValid = false;
     }
 
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isValid) {
       const generiSelezionati = Array.from(generi).map(checkbox => checkbox.value);
 
+      // Dati completi lato frontend (se ti servono in futuro)
       const userData = {
         nome: nome,
         cognome: cognome,
@@ -76,13 +78,19 @@ document.addEventListener('DOMContentLoaded', function() {
         generi: generiSelezionati
       };
 
-      console.log('Dati da inviare al backend:', userData);
+      console.log('Dati completi lato frontend:', userData);
 
-      // Mostra messaggio di successo
-      showSuccessMessage();
+      // Payload per il backend Spring Boot (come in Postman)
+      const backendPayload = {
+        username: email,   // usa l'email come username (come in Postman)
+        password: password,
+        email: email
+      };
 
-      // TODO: Qui andrai ad inviare i dati al backend Spring Boot
-      // sendToBackend(userData);
+      console.log('Payload inviato al backend:', backendPayload);
+
+      // Invia i dati al backend
+      sendToBackend(backendPayload);
     }
   });
 });
@@ -115,6 +123,10 @@ function isValidPassword(password) {
 
 // Funzione per mostrare errori
 function showError(element, message) {
+  if (!element) {
+    console.warn('showError chiamata con un elemento nullo:', message);
+    return;
+  }
   // Crea elemento errore
   const errorDiv = document.createElement('div');
   errorDiv.className = 'error-message';
@@ -187,11 +199,9 @@ function showSuccessMessage() {
   }, 3000);
 }
 
-// Funzione da implementare per inviare dati al backend
+// Funzione per inviare dati al backend
 function sendToBackend(userData) {
-  // TODO: Implementa la chiamata API al tuo backend Spring Boot
-  /*
-  fetch('http://localhost:8080/api/auth/register', {
+  fetch('http://localhost:8080/auth/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -201,12 +211,15 @@ function sendToBackend(userData) {
   .then(response => response.json())
   .then(data => {
     console.log('Success:', data);
-    // Reindirizza al login o mostra messaggio di successo
-    window.location.href = 'login.html';
+    // Mostra messaggio di successo
+    showSuccessMessage();
+    // Reindirizza al login dopo un breve delay
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 1500);
   })
   .catch((error) => {
     console.error('Error:', error);
-    // Mostra errore all'utente
+    alert('Si è verificato un errore durante la registrazione. Riprova più tardi.');
   });
-  */
 }
