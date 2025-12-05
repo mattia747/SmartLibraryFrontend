@@ -1,4 +1,7 @@
--aggiungere libri ✔️
--aggiungere barra di ricerca ✔️
--aggiungere filtri ✔️
--apertura pagina singolo libro ️ ️✔️
+- aggiungere libri ✔️
+- aggiungere barra di ricerca ✔️
+- aggiungere filtri ✔️
+- apertura pagina singolo libro ️✔️
+- configurare pagina gestioneProfilo
+- favicon per tutte le pagine 
+- aggiungere opzione "aggiungi alla mia lista"

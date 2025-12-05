@@ -214,6 +214,18 @@ function getBookAvailability(book) {
 }
 
 // ===============================
+// Utility: mescola array in modo random
+// ===============================
+function shuffleArray(array) {
+  const arr = [...array]; // copia per sicurezza
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ===============================
 // Modal: apertura / chiusura / popolamento
 // ===============================
 function openModal(globalIndex, filteredBooksParam) {
@@ -256,7 +268,6 @@ function openModal(globalIndex, filteredBooksParam) {
     if (isbn) pubLine += "<br>ISBN: " + isbn;
   }
 
-
   const description =
     info.description ||
     "Nessuna descrizione disponibile per questo libro.";
@@ -273,8 +284,8 @@ function openModal(globalIndex, filteredBooksParam) {
       ? `Categorie: ${categories}`
       : "Categorie non disponibili";
   if (modalPublished)
-    modalPublished.innerHTML = pubLine
-    || "Dettagli di pubblicazione non disponibili";
+    modalPublished.innerHTML =
+      pubLine || "Dettagli di pubblicazione non disponibili";
   if (modalDescription) modalDescription.textContent = description;
   if (modalCover) {
     if (cover) {
@@ -361,7 +372,9 @@ async function loadDefaultBooks() {
         uniqueMap.set(book.id, book);
       }
     }
-    books = Array.from(uniqueMap.values());
+
+    // converto in array e mescolo per avere ordine random ogni volta
+    books = shuffleArray(Array.from(uniqueMap.values()));
 
     if (books.length === 0) {
       container.innerHTML =
