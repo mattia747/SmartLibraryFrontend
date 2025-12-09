@@ -129,6 +129,13 @@
       text-align: center;
     }
 
+    .profile-email {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+      margin-top: -0.5rem;
+    }
+
     .btn-manage {
       width: 100%;
       padding: 0.8rem 1.2rem;
@@ -194,6 +201,24 @@
       background-color: var(--primary);
       color: var(--white);
       transform: translateY(-2px);
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 15px;
+      border-radius: var(--radius);
+      margin: 20px 0;
+      text-align: center;
+      border-left: 4px solid #c33;
     }
 
     /* Books Grid Container */
@@ -545,12 +570,13 @@
   </style>
 </head>
 <body>
+
 <header class="header">
   <nav class="navbar">
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
-      <li><a href="profile.html">Profilo</a></li>
+      <li><a href="profiloUtente.html">Profilo</a></li>
     </ul>
   </nav>
 </header>
@@ -558,10 +584,11 @@
 <main class="main">
   <aside class="profile-sidebar">
     <div class="profile-pic" id="profilePic">
-      <span id="profilePicText">Immagine profilo modificabile</span>
+      <span id="profilePicText">U</span>
     </div>
     <input type="file" id="profilePicInput" accept="image/*">
-    <h1 class="profile-name">Lorenzo</h1>
+    <h1 class="profile-name" id="profileName">Caricamento...</h1>
+    <p class="profile-email" id="profileEmail">-</p>
     <button class="btn-manage">Gestisci profilo</button>
   </aside>
 
@@ -571,13 +598,19 @@
       <a href="catalog.html" class="btn-catalog">Catalogo</a>
     </div>
 
-    <div class="books-container" id="booksContainer">
+    <!-- Error message -->
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+    <!-- Loading state -->
+    <div id="profileLoading" class="loading">Caricamento dati profilo...</div>
+
+    <div class="books-container" id="booksContainer" style="display: none;">
       <!-- Le pagine verranno generate dinamicamente -->
     </div>
 
-    <div class="pagination">
+    <div class="pagination" id="pagination" style="display: none;">
       <button class="page-btn" id="prevBtn">‹</button>
-      <span class="page-info" id="pageInfo">1 di 3</span>
+      <span class="page-info" id="pageInfo">1 di 1</span>
       <button class="page-btn" id="nextBtn">›</button>
     </div>
   </section>
@@ -619,174 +652,114 @@
 </div>
 
 <script>
-  // Dati dei libri di esempio (puoi sostituire con i tuoi dati)
-  const books = [
-    { id: 1, title: "Il Signore degli Anelli", author: "J.R.R. Tolkien", year: 1954, genre: "Fantasy" },
-    { id: 2, title: "1984", author: "George Orwell", year: 1949, genre: "Distopia" },
-    { id: 3, title: "Orgoglio e Pregiudizio", author: "Jane Austen", year: 1813, genre: "Romanzo" },
-    { id: 4, title: "Il Grande Gatsby", author: "F. Scott Fitzgerald", year: 1925, genre: "Romanzo" },
-    { id: 5, title: "Moby Dick", author: "Herman Melville", year: 1851, genre: "Avventura" },
-    { id: 6, title: "Guerra e Pace", author: "Lev Tolstoj", year: 1869, genre: "Storico" },
-    { id: 7, title: "Don Chisciotte", author: "Miguel de Cervantes", year: 1605, genre: "Classico" },
-    { id: 8, title: "L'Odissea", author: "Omero", year: -800, genre: "Epico" },
-    { id: 9, title: "Cent'anni di solitudine", author: "Gabriel García Márquez", year: 1967, genre: "Realismo magico" },
-    { id: 10, title: "Il Piccolo Principe", author: "Antoine de Saint-Exupéry", year: 1943, genre: "Favola" },
-    { id: 11, title: "Delitto e Castigo", author: "Fëdor Dostoevskij", year: 1866, genre: "Psicologico" },
-    { id: 12, title: "Anna Karenina", author: "Lev Tolstoj", year: 1877, genre: "Romanzo" },
-    { id: 13, title: "I Promessi Sposi", author: "Alessandro Manzoni", year: 1827, genre: "Storico" },
-    { id: 14, title: "Madame Bovary", author: "Gustave Flaubert", year: 1857, genre: "Romanzo" },
-    { id: 15, title: "La Divina Commedia", author: "Dante Alighieri", year: 1321, genre: "Poema" },
-    { id: 16, title: "Ulisse", author: "James Joyce", year: 1922, genre: "Modernista" },
-    { id: 17, title: "Il Processo", author: "Franz Kafka", year: 1925, genre: "Esistenzialista" },
-    { id: 18, title: "Fahrenheit 451", author: "Ray Bradbury", year: 1953, genre: "Fantascienza" },
-    { id: 19, title: "Il Ritratto di Dorian Gray", author: "Oscar Wilde", year: 1890, genre: "Gotico" },
-    { id: 20, title: "Le Avventure di Huckleberry Finn", author: "Mark Twain", year: 1884, genre: "Avventura" }
-  ];
+  const API_BASE_URL = 'http://localhost:8080';
 
-  const booksPerPage = 8;
-  const totalPages = Math.ceil(books.length / booksPerPage);
-  let currentPage = 1;
-  let isAnimating = false;
-
-  const container = document.getElementById('booksContainer');
-  const pageInfo = document.getElementById('pageInfo');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-
-  function createBookCard(book) {
-    return `
-        <div class="book-card" data-book-id="${book.id}">
-          <div class="book-placeholder">📚</div>
-          <div class="book-title">${book.title}</div>
-        </div>
-      `;
+  function getToken() {
+    return localStorage.getItem('authToken');
   }
 
-  function createPage(pageNumber) {
-    const startIdx = (pageNumber - 1) * booksPerPage;
-    const endIdx = startIdx + booksPerPage;
-    const pageBooks = books.slice(startIdx, endIdx);
-
-    const pageDiv = document.createElement('div');
-    pageDiv.className = 'books-page';
-    pageDiv.innerHTML = pageBooks.map(book => createBookCard(book)).join('');
-
-    return pageDiv;
+  function authHeaders() {
+    return {
+      'Authorization': `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    };
   }
 
-  function updatePage(direction) {
-    if (isAnimating) return;
-    isAnimating = true;
+  function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
 
-    const currentPageEl = container.querySelector('.books-page');
+  function hideLoading() {
+    document.getElementById('profileLoading').style.display = 'none';
+    document.getElementById('booksContainer').style.display = 'block';
+    document.getElementById('pagination').style.display = 'none';
+  }
 
-    if (currentPageEl) {
-      currentPageEl.classList.add('flip-out');
-
-      setTimeout(() => {
-        currentPageEl.remove();
-        const newPage = createPage(currentPage);
-        newPage.classList.add('flip-in');
-        container.appendChild(newPage);
-
-        setTimeout(() => {
-          newPage.classList.remove('flip-in');
-          isAnimating = false;
-        }, 800);
-      }, 800);
-    } else {
-      const newPage = createPage(currentPage);
-      container.appendChild(newPage);
-      isAnimating = false;
+  async function loadProfile() {
+    const token = getToken();
+    if (!token) {
+      showError('Non sei autenticato. Effettua il login per accedere al profilo.');
+      hideLoading();
+      setTimeout(() => window.location.href = 'login.html', 1500);
+      return;
     }
 
-    updateControls();
-  }
-
-  function updateControls() {
-    pageInfo.textContent = `${currentPage} di ${totalPages}`;
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
-  }
-
-  prevBtn.addEventListener('click', () => {
-    if (currentPage > 1 && !isAnimating) {
-      currentPage--;
-      updatePage('prev');
-    }
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if (currentPage < totalPages && !isAnimating) {
-      currentPage++;
-      updatePage('next');
-    }
-  });
-
-  // Inizializza la prima pagina
-  updatePage();
-
-  // Gestione click sui libri
-  container.addEventListener('click', (e) => {
-    const bookCard = e.target.closest('.book-card');
-    if (bookCard && !isAnimating) {
-      const bookId = parseInt(bookCard.dataset.bookId);
-      const book = books.find(b => b.id === bookId);
-      if (book) {
-        openBookModal(book);
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, { headers: authHeaders() });
+      if (res.status === 401) {
+        localStorage.removeItem('authToken');
+        showError('Sessione scaduta. Effettua nuovamente il login.');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        hideLoading();
+        return;
       }
+      if (!res.ok) throw new Error(`Errore ${res.status}`);
+      const data = await res.json();
+      displayProfile(data);
+    } catch (err) {
+      console.error('Errore profilo:', err);
+      showError('Impossibile caricare il profilo.');
     }
-  });
-
-  // Modal dettagli libro
-  const modal = document.getElementById('bookModal');
-  const modalClose = document.getElementById('modalClose');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalAuthor = document.getElementById('modalAuthor');
-  const modalYear = document.getElementById('modalYear');
-  const modalGenre = document.getElementById('modalGenre');
-  const btnReturn = document.getElementById('btnReturn');
-  const btnRenew = document.getElementById('btnRenew');
-
-  function openBookModal(book) {
-    modalTitle.textContent = book.title;
-    modalAuthor.textContent = book.author;
-    modalYear.textContent = book.year;
-    modalGenre.textContent = book.genre;
-    modal.classList.add('show');
   }
 
-  function closeBookModal() {
-    modal.classList.remove('show');
+  function displayProfile(data) {
+    const initial = data.username ? data.username.charAt(0).toUpperCase() : 'U';
+    document.getElementById('profilePicText').textContent = initial;
+    document.getElementById('profileName').textContent = data.username || 'Utente';
+    const emailElement = document.getElementById('profileEmail');
+    emailElement.textContent = data.email || 'Email non specificata';
+    document.getElementById('errorMessage').style.display = 'none';
   }
 
-  modalClose.addEventListener('click', closeBookModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeBookModal();
+  // =========================
+  // Prenotazioni utente
+  // =========================
+  async function loadReservations() {
+    const token = getToken();
+    if (!token) return;
+    const container = document.getElementById('booksContainer');
+    container.innerHTML = '<div class="loading">Caricamento prenotazioni...</div>';
+    try {
+      const res = await fetch(`${API_BASE_URL}/profile/reservations`, { headers: authHeaders() });
+      if (!res.ok) throw new Error(`Errore ${res.status}`);
+      const reservations = await res.json();
+      renderReservations(reservations);
+    } catch (err) {
+      console.error('Errore prenotazioni:', err);
+      container.innerHTML = '<div class="error-message">Errore nel caricare le prenotazioni.</div>';
+    } finally {
+      hideLoading();
     }
-  });
+  }
 
-  btnReturn.addEventListener('click', () => {
-    alert('Libro restituito con successo!');
-    closeBookModal();
-  });
+  function renderReservations(reservations) {
+    const container = document.getElementById('booksContainer');
+    if (!reservations.length) {
+      container.innerHTML = '<p class="loading">Nessuna prenotazione ancora.</p>';
+      return;
+    }
 
-  btnRenew.addEventListener('click', () => {
-    alert('Prestito rinnovato con successo!');
-    closeBookModal();
-  });
+    container.innerHTML = '';
+    reservations.forEach((r) => {
+      const card = document.createElement('div');
+      card.className = 'book-card';
+      card.innerHTML = `
+        <div class="book-title">${r.bookTitle}</div>
+        <p>Data prenotazione: ${r.reservationDate || '-'}</p>
+        <p>Stato: ${r.active ? 'Attiva' : 'Non attiva'}${r.collected ? ' · Ritirata' : ''}</p>
+      `;
+      container.appendChild(card);
+    });
+  }
 
   // Gestione caricamento immagine profilo
   const profilePic = document.getElementById('profilePic');
   const profilePicInput = document.getElementById('profilePicInput');
   const profilePicText = document.getElementById('profilePicText');
 
-  profilePic.addEventListener('click', () => {
-    profilePicInput.click();
-  });
-
+  profilePic.addEventListener('click', () => profilePicInput.click());
   profilePicInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
@@ -799,6 +772,12 @@
       reader.readAsDataURL(file);
     }
   });
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadProfile();
+    await loadReservations();
+  });
 </script>
+
 </body>
 </html>

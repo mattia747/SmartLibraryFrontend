@@ -43,9 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(data => {
         console.log('Login success:', data);
-        // Se il backend ti restituisce un token, puoi salvarlo qui
-        // localStorage.setItem('token', data.token);
-
+        // Salva il token JWT per le chiamate autenticate
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+        }
+        // Salva username (può tornare utile)
+        if (data.username) {
+          localStorage.setItem('authUser', data.username);
+        }
         // Redirect al catalogo
         window.location.href = 'catalog.html';
       })

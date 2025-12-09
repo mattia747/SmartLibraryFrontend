@@ -8,6 +8,32 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styleLogin.css">
+  <style>
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      display: none;
+      animation: shake 0.3s ease;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .input-error {
+      border-color: #e74c3c !important;
+      background-color: #fef5f5 !important;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+  </style>
 </head>
 <body>
 <header class="header">
@@ -24,11 +50,17 @@
     <h1>Benvenuto in SmartLibrary</h1>
     <p>La tua libreria digitale per prenotare e consultare libri.</p>
     <div class="hero-content">
-      <form class="hero-form">
+      <form class="hero-form" id="loginForm">
         <h3>Username</h3>
-        <input type="text" placeholder="Inserisci username">
+        <input type="text" id="username" placeholder="Inserisci username">
+        <div class="error-message" id="usernameError"></div>
+
         <h3>Password</h3>
-        <input type="password" placeholder="Inserisci password">
+        <input type="password" id="password" placeholder="Inserisci password">
+        <div class="error-message" id="passwordError"></div>
+
+        <div class="error-message" id="generalError"></div>
+
         <p>Se non sei registrato, puoi farlo ora <a href="register.html" class="linkToPage">qui</a></p>
         <button class="btn-primary" type="submit">Login</button>
       </form>
@@ -40,6 +72,119 @@
   <p>&copy; 2025 SmartLibrary</p>
 </footer>
 
-<script src="js/app.js"></script>
+<script>
+  const form = document.getElementById('loginForm');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const usernameError = document.getElementById('usernameError');
+  const passwordError = document.getElementById('passwordError');
+  const generalError = document.getElementById('generalError');
+
+  // Funzione per mostrare errore
+  function showError(element, message, inputElement = null) {
+    element.textContent = message;
+    element.classList.add('show');
+    if (inputElement) {
+      inputElement.classList.add('input-error');
+    }
+  }
+
+  // Funzione per nascondere errore
+  function hideError(element, inputElement = null) {
+    element.textContent = '';
+    element.classList.remove('show');
+    if (inputElement) {
+      inputElement.classList.remove('input-error');
+    }
+  }
+
+  // Nascondi errori quando l'utente inizia a digitare
+  usernameInput.addEventListener('input', () => {
+    hideError(usernameError, usernameInput);
+    hideError(generalError);
+  });
+
+  passwordInput.addEventListener('input', () => {
+    hideError(passwordError, passwordInput);
+    hideError(generalError);
+  });
+
+  // Evita doppio listener se carichi anche app.js
+  if (!window.loginHandlerAttached) {
+    window.loginHandlerAttached = true;
+
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Nascondi tutti gli errori precedenti
+    hideError(usernameError, usernameInput);
+    hideError(passwordError, passwordInput);
+    hideError(generalError);
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    // Validazione client-side
+    let hasError = false;
+
+    if (!username) {
+      showError(usernameError, 'Username obbligatorio', usernameInput);
+      hasError = true;
+    }
+
+    if (!password) {
+      showError(passwordError, 'Password obbligatoria', passwordInput);
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Chiamata API
+    try {
+      const response = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+        // Salva il token o i dati utente
+        if (data.token) localStorage.setItem('authToken', data.token);
+        if (data.username) localStorage.setItem('authUser', data.username);
+        // (compat) rimuovi vecchie chiavi
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userId');
+        // Redirect al catalogo
+        window.location.href = 'catalog.html';
+      } else {
+        // Prova a leggere JSON, altrimenti testo semplice
+        let errorMessage = 'Errore durante il login. Riprova.';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          const text = await response.text();
+          if (text) errorMessage = text;
+        }
+
+        // Gestisci diversi tipi di errore
+        if (response.status === 401) {
+          showError(generalError, 'Username o password non corretti');
+        } else if (response.status === 404) {
+          showError(generalError, 'Utente non trovato');
+        } else {
+          showError(generalError, errorMessage);
+        }
+      }
+    } catch (error) {
+      console.error('Errore:', error);
+      showError(generalError, 'Errore di connessione al server. Riprova più tardi.');
+    }
+    });
+  }
+</script>
 </body>
 </html>

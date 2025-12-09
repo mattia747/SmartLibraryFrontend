@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Importa Libri - Admin SmartLibrary</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 40px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .result.success {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+      display: block;
+    }
+
+    .result.error {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+      display: block;
+    }
+
+    .result.info {
+      background: #d1ecf1;
+      border: 2px solid #17a2b8;
+      color: #0c5460;
+      display: block;
+    }
+
+    .book-list {
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .book-item {
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .book-item h3 {
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+
+    .book-item p {
+      color: #666;
+      font-size: 14px;
+      margin: 3px 0;
+    }
+
+    .book-cover {
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+      float: right;
+      margin-left: 15px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📚 Importa Libri da Google Books</h1>
+
+  <div class="form-group">
+    <label for="query">Cerca libri (titolo, autore, genere, ecc.)</label>
+    <input type="text" id="query" placeholder="es. fantasy, thriller, 1984 George Orwell, etc.">
+  </div>
+
+  <div class="form-group">
+    <label for="maxResults">Numero massimo di libri da cercare</label>
+    <input type="number" id="maxResults" value="10" min="1" max="40">
+  </div>
+
+  <button id="importBtn" onclick="importBooks()">Importa Libri nel Database</button>
+
+  <div class="loading" id="loading">
+    Caricamento in corso...
+  </div>
+
+  <div class="result" id="result"></div>
+  <div class="book-list" id="bookList"></div>
+</div>
+
+<script>
+  const API_BASE_URL = 'http://localhost:8080';
+
+  // Verifica se l'utente è autenticato come admin
+  function checkAuth() {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('Devi essere autenticato come admin. Fai il login prima!');
+      window.location.href = 'login.html';
+      return false;
+    }
+    return true;
+  }
+
+  // Importa libri
+  async function importBooks() {
+    if (!checkAuth()) return;
+
+    const query = document.getElementById('query').value.trim();
+    const maxResults = parseInt(document.getElementById('maxResults').value) || 10;
+
+    if (!query) {
+      showResult('error', 'Inserisci un termine di ricerca!');
+      return;
+    }
+
+    const loading = document.getElementById('loading');
+    const btn = document.getElementById('importBtn');
+    const result = document.getElementById('result');
+    const bookList = document.getElementById('bookList');
+
+    loading.classList.add('show');
+    btn.disabled = true;
+    result.style.display = 'none';
+    bookList.innerHTML = '';
+
+    try {
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`${API_BASE_URL}/admin/books/import`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: query,
+          maxResults: maxResults
+        })
+      });
+
+      if (response.status === 401) {
+        showResult('error', 'Non sei autenticato o la sessione è scaduta. Fai nuovamente il login.');
+        localStorage.removeItem('authToken');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
+      }
+
+      if (response.status === 403) {
+        showResult('error', 'Devi essere un amministratore per importare libri!');
+        return;
+      }
+
+      if (!response.ok) {
+        const error = await response.text();
+        showResult('error', `Errore: ${error}`);
+        return;
+      }
+
+      const data = await response.json();
+
+      // Mostra i risultati
+      if (data.imported > 0) {
+        showResult('success',
+          `✅ Importati con successo ${data.imported} libri su ${data.totalFound} trovati!`);
+
+        // Mostra i libri importati
+        if (data.books && data.books.length > 0) {
+          let html = '<h3 style="margin-top: 20px; color: #2c3e50;">Libri importati:</h3>';
+          data.books.forEach(book => {
+            html += `
+                                <div class="book-item">
+                                    ${book.coverImageUrl ? `<img src="${book.coverImageUrl}" class="book-cover" alt="Copertina">` : ''}
+                                    <h3>${book.title}</h3>
+                                    <p><strong>Autore:</strong> ${book.author}</p>
+                                    <p><strong>Anno:</strong> ${book.publicationYear || 'N/A'}</p>
+                                    <p><strong>Genere:</strong> ${book.genre || 'N/A'}</p>
+                                    <p><strong>Copie disponibili:</strong> ${book.copiesAvailable}</p>
+                                    ${book.description ? `<p style="margin-top: 10px; font-size: 13px;">${book.description.substring(0, 150)}...</p>` : ''}
+                                </div>
+                            `;
+          });
+          bookList.innerHTML = html;
+        }
+      } else {
+        showResult('info',
+          `⚠️ Nessun libro importato. ${data.totalFound} libri trovati, ma erano già presenti o si è verificato un errore.`);
+      }
+
+      if (data.skippedBooks && data.skippedBooks.length > 0) {
+        console.log('Libri saltati:', data.skippedBooks);
+      }
+
+    } catch (error) {
+      showResult('error', `Errore di connessione: ${error.message}`);
+    } finally {
+      loading.classList.remove('show');
+      btn.disabled = false;
+    }
+  }
+
+  function showResult(type, message) {
+    const result = document.getElementById('result');
+    result.className = `result ${type}`;
+    result.innerHTML = message;
+    result.style.display = 'block';
+  }
+
+  // Verifica autenticazione al caricamento
+  window.addEventListener('DOMContentLoaded', () => {
+    if (!localStorage.getItem('authToken')) {
+      alert('Devi essere autenticato come admin!');
+      window.location.href = 'login.html';
+    }
+  });
+</script>
+</body>
+</html>
