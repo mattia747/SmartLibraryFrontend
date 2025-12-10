@@ -23,6 +23,10 @@ const modalDescription = document.getElementById('modal-description');
 const modalBookButton = document.getElementById('modal-book-button');
 const modalCloseBtn = document.querySelector('.book-modal-close');
 const modalAvailability = document.getElementById('modal-availability');
+const reviewsToggle = document.getElementById('reviews-toggle');
+const reviewsContent = document.getElementById('reviews-content');
+const reviewsList = document.getElementById('reviews-list');
+const reviewsCount = document.getElementById('reviews-count');
 
 function getToken() {
   return localStorage.getItem('authToken');
@@ -69,7 +73,7 @@ function renderBooks() {
     card.className = 'book-card';
     card.dataset.id = book.id;
 
-    const cover = book.coverImageUrl || 'img/logoWhite.png';
+    const cover = book.coverImageUrl || 'img/logo.png';
     const authors = book.author || 'Autore sconosciuto';
     const year = book.publicationYear ? ` · ${book.publicationYear}` : '';
     const copies = book.copiesAvailable ?? 'N/D';
@@ -112,7 +116,7 @@ function openModal(book) {
   if (modalPublished) modalPublished.textContent = book.publicationYear ? `Pubblicato: ${book.publicationYear}` : 'Anno non disponibile';
   if (modalDescription) modalDescription.textContent = book.description || 'Nessuna descrizione disponibile.';
   if (modalCover) {
-    const cover = book.coverImageUrl || 'img/logoWhite.png';
+    const cover = book.coverImageUrl || 'img/logo.png';
     modalCover.src = cover;
     modalCover.style.display = 'block';
   }
@@ -126,6 +130,17 @@ function openModal(book) {
   }
   if (modalBookButton) {
     modalBookButton.disabled = !available;
+  }
+
+  // Reset recensioni
+  if (reviewsContent) reviewsContent.style.display = 'none';
+  if (reviewsToggle) reviewsToggle.classList.remove('expanded');
+  if (reviewsList) reviewsList.innerHTML = '<div class="loading">Caricamento recensioni...</div>';
+  if (reviewsCount) reviewsCount.textContent = '(0)';
+
+  // Carica recensioni
+  if (book.id) {
+    loadReviews(book.id);
   }
 
   if (modalOverlay) modalOverlay.classList.add('show');
@@ -183,6 +198,89 @@ async function reserveBook(bookId) {
     console.error('Errore prenotazione:', err);
     alert('Errore durante la prenotazione. Riprova.');
   }
+}
+
+// ===============================
+// Recensioni
+// ===============================
+async function loadReviews(bookId) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/reviews`, {
+      headers: authHeaders()
+    });
+    
+    if (!res.ok) {
+      if (res.status === 404) {
+        // Nessuna recensione trovata
+        renderReviews([]);
+        return;
+      }
+      throw new Error(`Errore ${res.status}`);
+    }
+    
+    const reviews = await res.json();
+    renderReviews(reviews);
+  } catch (err) {
+    console.error('Errore nel caricamento recensioni:', err);
+    if (reviewsList) {
+      reviewsList.innerHTML = '<div class="no-reviews">Errore nel caricare le recensioni.</div>';
+    }
+    if (reviewsCount) reviewsCount.textContent = '(0)';
+  }
+}
+
+function renderReviews(reviews) {
+  if (!reviewsList || !reviewsCount) return;
+
+  if (!reviews || reviews.length === 0) {
+    reviewsList.innerHTML = '<div class="no-reviews">Nessuna recensione ancora.</div>';
+    reviewsCount.textContent = '(0)';
+    return;
+  }
+
+  reviewsCount.textContent = `(${reviews.length})`;
+
+  reviewsList.innerHTML = reviews.map(review => {
+    const stars = Array.from({ length: 5 }, (_, i) => {
+      const filled = i < review.rating;
+      return `<span class="star ${filled ? '' : 'empty'}">★</span>`;
+    }).join('');
+
+    const date = review.reviewDate 
+      ? new Date(review.reviewDate).toLocaleDateString('it-IT', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      : '';
+
+    return `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-user">${review.username || 'Utente'}</span>
+          <div class="review-rating">${stars}</div>
+        </div>
+        ${review.comment ? `<div class="review-comment">${review.comment}</div>` : ''}
+        ${date ? `<div class="review-date">${date}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// Toggle recensioni
+if (reviewsToggle) {
+  reviewsToggle.addEventListener('click', () => {
+    if (!reviewsContent) return;
+    
+    const isExpanded = reviewsToggle.classList.contains('expanded');
+    if (isExpanded) {
+      reviewsContent.style.display = 'none';
+      reviewsToggle.classList.remove('expanded');
+    } else {
+      reviewsContent.style.display = 'block';
+      reviewsToggle.classList.add('expanded');
+    }
+  });
 }
 
 // ===============================

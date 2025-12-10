@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nome = form.querySelector('input[type="text"]:nth-of-type(1)').value.trim();
     const cognome = form.querySelector('input[type="text"]:nth-of-type(2)').value.trim();
     const eta = form.querySelector('input[type="number"]').value.trim();
+    const username = form.querySelector('#username').value.trim();
     const email = form.querySelector('input[type="email"]').value.trim();
     const password = form.querySelector('input[type="password"]').value;
     const generi = form.querySelectorAll('input[type="checkbox"]:checked');
@@ -35,6 +36,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validazione Età
     if (eta === '') {
       showError(form.querySelector('input[type="number"]'), 'L\'età è obbligatoria');
+      isValid = false;
+    }
+
+    // Validazione Username
+    if (username === '') {
+      showError(form.querySelector('#username'), 'Lo username è obbligatorio');
+      isValid = false;
+    } else if (username.length < 3) {
+      showError(form.querySelector('#username'), 'Lo username deve contenere almeno 3 caratteri');
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      showError(form.querySelector('#username'), 'Lo username può contenere solo lettere, numeri e underscore');
       isValid = false;
     }
 
@@ -73,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         nome: nome,
         cognome: cognome,
         eta: parseInt(eta),
+        username: username,
         email: email,
         password: password,
         generi: generiSelezionati
@@ -80,11 +94,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
       console.log('Dati completi lato frontend:', userData);
 
-      // Payload per il backend Spring Boot (come in Postman)
+      // Payload per il backend Spring Boot
       const backendPayload = {
-        username: email,   // usa l'email come username (come in Postman)
-        password: password,
-        email: email
+        username: username,
+        email: email,
+        password: password
       };
 
       console.log('Payload inviato al backend:', backendPayload);
@@ -208,15 +222,22 @@ function sendToBackend(userData) {
     },
     body: JSON.stringify(userData)
   })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Success:', data);
-    // Mostra messaggio di successo
-    showSuccessMessage();
-    // Reindirizza al login dopo un breve delay
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 1500);
+  .then(async response => {
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      console.log('Success:', data);
+      // Mostra messaggio di successo
+      showSuccessMessage();
+      // Reindirizza al login dopo un breve delay
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1500);
+    } else {
+      // Gestisci errori dal backend
+      const errorMessage = data.message || data.error || 'Errore durante la registrazione';
+      console.error('Error:', errorMessage);
+      alert('Errore: ' + errorMessage);
+    }
   })
   .catch((error) => {
     console.error('Error:', error);

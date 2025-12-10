@@ -136,7 +136,7 @@
       margin-top: -0.5rem;
     }
 
-    .btn-manage {
+    .btn-logout {
       width: 100%;
       padding: 0.8rem 1.2rem;
       border-radius: var(--radius);
@@ -151,10 +151,32 @@
       margin-top: auto;
     }
 
-    .btn-manage:hover {
+    .btn-logout:hover {
       background-color: transparent;
       color: var(--primary);
       transform: translateY(-2px);
+    }
+
+    .btn-delete-account {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border-radius: var(--radius);
+      border: 2px solid #e74c3c;
+      background-color: #e74c3c;
+      color: var(--white);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      margin-top: 0.8rem;
+    }
+
+    .btn-delete-account:hover {
+      background-color: #c0392b;
+      border-color: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
     }
 
     /* Books Section */
@@ -221,94 +243,85 @@
       border-left: 4px solid #c33;
     }
 
-    /* Books Grid Container */
+
     .books-container {
-      position: relative;
-      flex: 1;
-      perspective: 2000px;
-      min-height: 500px;
-    }
-
-    .books-page {
-      position: absolute;
-      width: 100%;
-      height: 100%;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
-      transform-style: preserve-3d;
-      transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
-      backface-visibility: hidden;
-    }
-
-    .books-page.flip-out {
-      animation: flipOut 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
-    }
-
-    .books-page.flip-in {
-      animation: flipIn 0.8s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
-    }
-
-    @keyframes flipOut {
-      0% {
-        transform: rotateY(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: rotateY(-180deg);
-        opacity: 0;
-      }
-    }
-
-    @keyframes flipIn {
-      0% {
-        transform: rotateY(180deg);
-        opacity: 0;
-      }
-      100% {
-        transform: rotateY(0deg);
-        opacity: 1;
-      }
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
     }
 
     .book-card {
-      background: linear-gradient(135deg, var(--bg) 0%, #d4dfe4 100%);
+      background: var(--white);
+      padding: 1.5rem;
       border-radius: var(--radius);
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--grey);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
       transition: all 0.3s ease;
-      min-height: 180px;
+      border: 2px solid transparent;
+      cursor: pointer;
     }
 
     .book-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      border-color: var(--primary);
+      transform: translateY(-8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      border-color: var(--primary-light);
     }
 
-    .book-placeholder {
-      width: 80px;
-      height: 100px;
-      background: var(--primary);
-      border-radius: 4px;
-      margin-bottom: 0.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--white);
+    .book-card img {
+      width: 150px;
+      height: 220px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .book-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .book-card h3 {
+      font-size: 1.1rem;
       font-weight: 600;
-      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+      line-height: 1.3;
+      min-height: 2.6rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .book-title {
+    .book-card p {
       font-size: 0.9rem;
+      color: #666;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+
+    .book-card .reservation-date {
+      font-size: 0.85rem;
+      color: #888;
+      font-style: italic;
+    }
+
+    .book-card .return-date {
+      font-size: 0.95rem;
+      color: var(--primary-dark);
       font-weight: 600;
-      text-align: center;
-      color: var(--text);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--grey);
+    }
+
+    .book-card .reservation-status {
+      font-size: 0.85rem;
+      color: #4CAF50;
+      font-weight: 600;
+      margin-top: 0.5rem;
     }
 
     /* Modal dettagli libro */
@@ -340,8 +353,10 @@
       background: var(--white);
       border-radius: var(--radius);
       padding: 2.5rem;
-      max-width: 500px;
-      width: 90%;
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       animation: slideUp 0.3s ease;
       position: relative;
@@ -382,17 +397,31 @@
     }
 
     .modal-book-cover {
-      width: 120px;
-      height: 160px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      width: 180px;
+      height: 260px;
       border-radius: 8px;
       margin: 0 auto 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--white);
-      font-size: 2rem;
       box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .modal-book-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-header-section {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .modal-book-info {
+      flex: 1;
     }
 
     .modal h3 {
@@ -400,7 +429,6 @@
       font-weight: 700;
       color: var(--primary);
       margin-bottom: 1rem;
-      text-align: center;
     }
 
     .modal-info {
@@ -530,6 +558,189 @@
       font-weight: 400;
     }
 
+    /* Sezione Recensioni */
+    .reviews-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--grey);
+    }
+
+    .reviews-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1rem;
+      background: var(--white);
+      border: 2px solid var(--grey);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .reviews-toggle:hover {
+      background: var(--bg);
+      border-color: var(--primary-light);
+      transform: translateY(-1px);
+    }
+
+    .reviews-toggle .reviews-count {
+      color: #666;
+      font-weight: 500;
+      margin-left: 0.5rem;
+    }
+
+    .reviews-toggle .reviews-arrow {
+      font-size: 0.8rem;
+      transition: transform 0.3s ease;
+      color: var(--primary);
+    }
+
+    .reviews-toggle.expanded .reviews-arrow {
+      transform: rotate(180deg);
+    }
+
+    .reviews-content {
+      margin-top: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .review-form-section {
+      background: var(--bg);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      border: 2px solid var(--grey);
+    }
+
+    .review-form-section h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+    }
+
+    .star-rating-input {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .star-rating-input > span:first-child {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .star-input {
+      display: flex;
+      gap: 0.3rem;
+    }
+
+    .star-input-star {
+      font-size: 1.8rem;
+      color: #ddd;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .star-input-star:hover,
+    .star-input-star.active {
+      color: #ffc107;
+      transform: scale(1.1);
+    }
+
+    .star-rating-value {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .review-comment-input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid var(--grey);
+      border-radius: var(--radius);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      resize: vertical;
+      margin-bottom: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .review-comment-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .reviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .review-item {
+      background: var(--white);
+      padding: 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--grey);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .review-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .review-user {
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+    }
+
+    .review-rating {
+      display: flex;
+      gap: 0.2rem;
+    }
+
+    .star {
+      color: #ffc107;
+      font-size: 1.1rem;
+    }
+
+    .star.empty {
+      color: #ddd;
+    }
+
+    .review-comment {
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-top: 0.5rem;
+    }
+
+    .review-date {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .no-reviews {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+      font-style: italic;
+    }
+
     /* Responsive */
     @media (max-width: 1200px) {
       .books-page {
@@ -566,6 +777,34 @@
       .pagination {
         gap: 1rem;
       }
+
+      .modal-content {
+        padding: 1.5rem;
+        max-width: 95%;
+      }
+
+      .modal-header-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .modal-book-cover {
+        width: 140px;
+        height: 200px;
+      }
+
+      .modal h3 {
+        text-align: center;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+      }
+
+      .btn-modal {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -576,7 +815,6 @@
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
-      <li><a href="profiloUtente.html">Profilo</a></li>
     </ul>
   </nav>
 </header>
@@ -589,13 +827,13 @@
     <input type="file" id="profilePicInput" accept="image/*">
     <h1 class="profile-name" id="profileName">Caricamento...</h1>
     <p class="profile-email" id="profileEmail">-</p>
-    <button class="btn-manage">Gestisci profilo</button>
+    <button class="btn-logout" id="btnLogout">Logout</button>
+    <button class="btn-delete-account" id="btnDeleteAccount">Elimina account</button>
   </aside>
 
   <section class="books-section">
     <div class="books-header">
-      <h2>Libri</h2>
-      <a href="catalog.html" class="btn-catalog">Catalogo</a>
+      <h2>Prenotazioni attive</h2>
     </div>
 
     <!-- Error message -->
@@ -605,13 +843,7 @@
     <div id="profileLoading" class="loading">Caricamento dati profilo...</div>
 
     <div class="books-container" id="booksContainer" style="display: none;">
-      <!-- Le pagine verranno generate dinamicamente -->
-    </div>
-
-    <div class="pagination" id="pagination" style="display: none;">
-      <button class="page-btn" id="prevBtn">‹</button>
-      <span class="page-info" id="pageInfo">1 di 1</span>
-      <button class="page-btn" id="nextBtn">›</button>
+      <!-- Le prenotazioni verranno generate dinamicamente -->
     </div>
   </section>
 </main>
@@ -624,9 +856,13 @@
 <div class="modal" id="bookModal">
   <div class="modal-content">
     <button class="modal-close" id="modalClose">×</button>
-    <div class="modal-book-cover">📚</div>
-    <h3 id="modalTitle">Titolo Libro</h3>
-    <div class="modal-info">
+    <div class="modal-header-section">
+      <div class="modal-book-cover">
+        <img id="modalBookCover" src="img/logo.png" alt="Copertina libro" onerror="this.src='img/logo.png'">
+      </div>
+      <div class="modal-book-info">
+        <h3 id="modalTitle">Titolo Libro</h3>
+        <div class="modal-info">
       <div class="modal-info-row">
         <span class="modal-info-label">Autore:</span>
         <span class="modal-info-value" id="modalAuthor">-</span>
@@ -643,10 +879,50 @@
         <span class="modal-info-label">Stato:</span>
         <span class="modal-info-value" id="modalStatus">Prenotato</span>
       </div>
+        </div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-modal btn-modal-secondary" id="btnReturn">Restituisci</button>
       <button class="btn-modal btn-modal-primary" id="btnRenew">Rinnova prestito</button>
+    </div>
+
+    <!-- Sezione Recensioni -->
+    <div class="reviews-section">
+      <button class="reviews-toggle" id="reviews-toggle">
+        <span>Recensioni</span>
+        <span class="reviews-count" id="reviews-count">(0)</span>
+        <span class="reviews-arrow">▼</span>
+      </button>
+      <div class="reviews-content" id="reviews-content" style="display: none;">
+        <!-- Form per lasciare recensione -->
+        <div class="review-form-section" id="review-form-section">
+          <h4>Lascia una recensione</h4>
+          <div class="star-rating-input">
+            <span>Valutazione:</span>
+            <div class="star-input">
+              <span class="star-input-star" data-rating="1">★</span>
+              <span class="star-input-star" data-rating="2">★</span>
+              <span class="star-input-star" data-rating="3">★</span>
+              <span class="star-input-star" data-rating="4">★</span>
+              <span class="star-input-star" data-rating="5">★</span>
+            </div>
+            <span class="star-rating-value" id="star-rating-value">0 stelle</span>
+          </div>
+          <textarea 
+            id="review-comment-input" 
+            class="review-comment-input" 
+            placeholder="Commento (opzionale)"
+            rows="4"
+          ></textarea>
+          <button class="btn-modal btn-modal-primary" id="btn-submit-review">Invia recensione</button>
+        </div>
+
+        <!-- Lista recensioni -->
+        <div id="reviews-list" class="reviews-list">
+          <!-- Le recensioni verranno caricate qui -->
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -673,12 +949,13 @@
 
   function hideLoading() {
     document.getElementById('profileLoading').style.display = 'none';
-    document.getElementById('booksContainer').style.display = 'block';
-    document.getElementById('pagination').style.display = 'none';
+    document.getElementById('booksContainer').style.display = 'grid';
   }
 
   async function loadProfile() {
     const token = getToken();
+    console.log('Token recuperato:', token ? 'Presente' : 'Mancante');
+
     if (!token) {
       showError('Non sei autenticato. Effettua il login per accedere al profilo.');
       hideLoading();
@@ -687,26 +964,59 @@
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/me`, { headers: authHeaders() });
+      const headers = authHeaders();
+      console.log('Headers inviati:', headers);
+      console.log('Chiamata a:', `${API_BASE_URL}/auth/me`);
+
+      const res = await fetch(`${API_BASE_URL}/auth/me`, { headers });
+
+      console.log('Risposta status:', res.status);
+
       if (res.status === 401) {
         localStorage.removeItem('authToken');
         showError('Sessione scaduta. Effettua nuovamente il login.');
-        setTimeout(() => window.location.href = 'login.html', 1500);
+        setTimeout(() => window.location.href = 'login.html', 2000);
         hideLoading();
         return;
       }
-      if (!res.ok) throw new Error(`Errore ${res.status}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Errore risposta:', errorText);
+        throw new Error(`Errore ${res.status}: ${errorText}`);
+      }
       const data = await res.json();
+      console.log('Dati profilo ricevuti:', data);
       displayProfile(data);
+      hideLoading();
     } catch (err) {
       console.error('Errore profilo:', err);
-      showError('Impossibile caricare il profilo.');
+      showError('Impossibile caricare il profilo: ' + err.message);
+      hideLoading();
     }
   }
 
   function displayProfile(data) {
-    const initial = data.username ? data.username.charAt(0).toUpperCase() : 'U';
-    document.getElementById('profilePicText').textContent = initial;
+    const profilePic = document.getElementById('profilePic');
+    const profilePicText = document.getElementById('profilePicText');
+
+    // Mostra l'immagine se presente, altrimenti mostra l'iniziale
+    if (data.profileImageUrl) {
+      profilePicText.style.display = 'none';
+      profilePic.style.background = 'none';
+      profilePic.innerHTML = `<img src="${data.profileImageUrl}" class="profile-pic-uploaded" alt="Foto profilo">`;
+    } else {
+      // Mostra iniziale se non c'è immagine
+      const initial = data.username ? data.username.charAt(0).toUpperCase() : 'U';
+      profilePicText.textContent = initial;
+      profilePicText.style.display = 'flex';
+      profilePic.style.background = 'linear-gradient(135deg, var(--grey) 0%, #e8eef1 100%)';
+      // Rimuovi eventuali immagini precedenti
+      const existingImg = profilePic.querySelector('img');
+      if (existingImg) {
+        existingImg.remove();
+      }
+    }
+
     document.getElementById('profileName').textContent = data.username || 'Utente';
     const emailElement = document.getElementById('profileEmail');
     emailElement.textContent = data.email || 'Email non specificata';
@@ -734,7 +1044,7 @@
     }
   }
 
-  function renderReservations(reservations) {
+  async function renderReservations(reservations) {
     const container = document.getElementById('booksContainer');
     if (!reservations.length) {
       container.innerHTML = '<p class="loading">Nessuna prenotazione ancora.</p>';
@@ -742,16 +1052,109 @@
     }
 
     container.innerHTML = '';
-    reservations.forEach((r) => {
-      const card = document.createElement('div');
-      card.className = 'book-card';
-      card.innerHTML = `
-        <div class="book-title">${r.bookTitle}</div>
-        <p>Data prenotazione: ${r.reservationDate || '-'}</p>
-        <p>Stato: ${r.active ? 'Attiva' : 'Non attiva'}${r.collected ? ' · Ritirata' : ''}</p>
-      `;
-      container.appendChild(card);
-    });
+
+    // Carica i dettagli di ogni libro per ottenere la copertina
+    for (const r of reservations) {
+      try {
+        // Carica i dettagli del libro dal backend
+        const bookRes = await fetch(`${API_BASE_URL}/api/books/${r.bookId}`, {
+          headers: authHeaders()
+        });
+
+        let bookData = null;
+        if (bookRes.ok) {
+          bookData = await bookRes.json();
+        }
+
+        // Calcola la data di restituzione (un mese dopo la prenotazione)
+        const reservationDate = new Date(r.reservationDate);
+        const returnDate = new Date(reservationDate);
+        returnDate.setMonth(returnDate.getMonth() + 1);
+
+        const returnDateStr = returnDate.toLocaleDateString('it-IT', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        const reservationDateStr = reservationDate.toLocaleDateString('it-IT', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        // Copertina del libro (usa quella del backend o un placeholder)
+        const coverUrl = bookData?.coverImageUrl || 'img/logo.png';
+
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+          <img src="${coverUrl}" alt="Copertina ${r.bookTitle}" onerror="this.src='img/logo.png'">
+          <h3>${r.bookTitle}</h3>
+          <p class="reservation-date">Prenotato il: ${reservationDateStr}</p>
+          <p class="return-date"><strong>Data restituzione: ${returnDateStr}</strong></p>
+          <p class="reservation-status">${r.active ? 'Stato: Attiva' : 'Stato: Non attiva'}${r.collected ? ' · Ritirata' : ''}</p>
+        `;
+        // Aggiungi click per aprire modal con dettagli
+        card.addEventListener('click', async () => {
+          // Se non abbiamo i dati del libro, caricali
+          let data = bookData;
+          if (!data && r.bookId) {
+            try {
+              const bookRes = await fetch(`${API_BASE_URL}/api/books/${r.bookId}`, {
+                headers: authHeaders()
+              });
+              if (bookRes.ok) {
+                data = await bookRes.json();
+              }
+            } catch (err) {
+              console.error('Errore nel caricare dettagli libro:', err);
+            }
+          }
+          openBookModal(r, data);
+        });
+        container.appendChild(card);
+      } catch (err) {
+        console.error('Errore nel caricare dettagli libro:', err);
+        // Fallback: mostra la card senza copertina
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        const reservationDate = new Date(r.reservationDate);
+        const returnDate = new Date(reservationDate);
+        returnDate.setMonth(returnDate.getMonth() + 1);
+        const returnDateStr = returnDate.toLocaleDateString('it-IT', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        card.innerHTML = `
+          <img src="img/logo.png" alt="Copertina ${r.bookTitle}">
+          <h3>${r.bookTitle}</h3>
+          <p class="reservation-date">Prenotato il: ${r.reservationDate || '-'}</p>
+          <p class="return-date"><strong>Data restituzione: ${returnDateStr}</strong></p>
+          <p class="reservation-status">${r.active ? 'Stato: Attiva' : 'Stato: Non attiva'}</p>
+        `;
+        // Aggiungi click per aprire modal con dettagli
+        card.addEventListener('click', async () => {
+          // Carica i dettagli del libro se disponibili
+          let data = null;
+          if (r.bookId) {
+            try {
+              const bookRes = await fetch(`${API_BASE_URL}/api/books/${r.bookId}`, {
+                headers: authHeaders()
+              });
+              if (bookRes.ok) {
+                data = await bookRes.json();
+              }
+            } catch (err) {
+              console.error('Errore nel caricare dettagli libro:', err);
+            }
+          }
+          openBookModal(r, data);
+        });
+        container.appendChild(card);
+      }
+    }
   }
 
   // Gestione caricamento immagine profilo
@@ -760,18 +1163,402 @@
   const profilePicText = document.getElementById('profilePicText');
 
   profilePic.addEventListener('click', () => profilePicInput.click());
-  profilePicInput.addEventListener('change', (e) => {
+  profilePicInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
+        const base64Image = event.target.result; // data:image/jpeg;base64,...
+
+        // Mostra subito l'immagine
         profilePicText.style.display = 'none';
         profilePic.style.background = 'none';
-        profilePic.innerHTML = `<img src="${event.target.result}" class="profile-pic-uploaded" alt="Foto profilo">`;
+        profilePic.innerHTML = `<img src="${base64Image}" class="profile-pic-uploaded" alt="Foto profilo">`;
+
+        // Salva nel database
+        const token = getToken();
+        if (!token) {
+          console.error('Token non disponibile');
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/profile/image`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ profileImageUrl: base64Image })
+          });
+
+          if (response.ok) {
+            console.log('Immagine profilo salvata!');
+          } else {
+            const errorText = await response.text();
+            console.error('Errore nel salvataggio immagine:', errorText);
+            alert('Errore nel salvare l\'immagine. Riprova più tardi.');
+          }
+        } catch (error) {
+          console.error('Errore:', error);
+          alert('Errore di connessione. Riprova più tardi.');
+        }
       };
       reader.readAsDataURL(file);
     }
   });
+
+  // =========================
+  // Logout e Eliminazione Account
+  // =========================
+
+  function logout() {
+    // Rimuovi token e dati utente
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    // Reindirizza al login
+    window.location.href = 'login.html';
+  }
+
+  async function deleteAccount() {
+    // Mostra conferma
+    const confirmMessage = 'Sei sicuro di voler eliminare il tuo account?\n\n' +
+      'Questa azione è IRREVERSIBILE e comporterà:\n' +
+      '• La perdita di tutte le tue prenotazioni\n' +
+      '• La cancellazione di tutti i tuoi dati\n' +
+      '• L\'impossibilità di recuperare l\'account\n\n' +
+      'Vuoi davvero procedere?';
+
+    if (!confirm(confirmMessage)) {
+      return; // L'utente ha annullato
+    }
+
+    const token = getToken();
+    if (!token) {
+      alert('Non sei autenticato.');
+      return;
+    }
+
+    try {
+      // Prova diversi endpoint comuni per eliminare l'account
+      // Se il backend usa un endpoint diverso, modifica qui
+      const endpoints = [
+        `${API_BASE_URL}/profile/delete`,
+        `${API_BASE_URL}/profile`,
+        `${API_BASE_URL}/user/delete`,
+        `${API_BASE_URL}/auth/delete`
+      ];
+      
+      let response = null;
+      let lastError = null;
+      
+      // Prova il primo endpoint (quello più comune)
+      response = await fetch(`${API_BASE_URL}/profile/delete`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      
+      console.log('Tentativo eliminazione account - Status:', response.status);
+      console.log('Endpoint usato:', `${API_BASE_URL}/profile/delete`);
+
+      if (response.ok) {
+        // Rimuovi token e dati utente
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        alert('Account eliminato con successo.');
+        // Reindirizza al login
+        window.location.href = 'login.html';
+      } else {
+        const errorText = await response.text();
+        console.error('Errore eliminazione account - Status:', response.status);
+        console.error('Errore eliminazione account - Response:', errorText);
+        
+        // Se è 403, potrebbe essere un problema di permessi o endpoint sbagliato
+        if (response.status === 403) {
+          alert('Accesso negato. Verifica che l\'endpoint del backend sia corretto.\n\n' +
+                'Endpoint provato: DELETE /profile/delete\n' +
+                'Se il tuo backend usa un endpoint diverso, modifica il codice in profiloUtente.html');
+        } else {
+          alert('Errore nell\'eliminazione dell\'account (Status: ' + response.status + '). Riprova più tardi.');
+        }
+      }
+    } catch (error) {
+      console.error('Errore:', error);
+      alert('Errore di connessione. Riprova più tardi.');
+    }
+  }
+
+  // Event listeners per i pulsanti
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnLogout = document.getElementById('btnLogout');
+    const btnDeleteAccount = document.getElementById('btnDeleteAccount');
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', logout);
+    }
+    if (btnDeleteAccount) {
+      btnDeleteAccount.addEventListener('click', deleteAccount);
+    }
+  });
+
+  // =========================
+  // Modal e Recensioni
+  // =========================
+  let currentBookId = null;
+  let selectedRating = 0;
+  let isLoadingReviews = false;
+  let reviewsLoadFailed = false;
+
+  const bookModal = document.getElementById('bookModal');
+  const modalClose = document.getElementById('modalClose');
+  const reviewsToggle = document.getElementById('reviews-toggle');
+  const reviewsContent = document.getElementById('reviews-content');
+  const reviewsList = document.getElementById('reviews-list');
+  const reviewsCount = document.getElementById('reviews-count');
+  const starInputStars = document.querySelectorAll('.star-input-star');
+  const starRatingValue = document.getElementById('star-rating-value');
+  const reviewCommentInput = document.getElementById('review-comment-input');
+  const btnSubmitReview = document.getElementById('btn-submit-review');
+
+  function openBookModal(reservation, bookData) {
+    currentBookId = reservation.bookId;
+    selectedRating = 0;
+
+    // Popola modal con dati libro
+    document.getElementById('modalTitle').textContent = reservation.bookTitle || 'Titolo non disponibile';
+    document.getElementById('modalAuthor').textContent = bookData?.author || '-';
+    document.getElementById('modalYear').textContent = bookData?.publicationYear || '-';
+    document.getElementById('modalGenre').textContent = bookData?.genre || '-';
+    document.getElementById('modalStatus').textContent = reservation.active ? 'Prenotato' : 'Non attivo';
+    
+    // Imposta copertina
+    const coverImg = document.getElementById('modalBookCover');
+    if (coverImg && bookData?.coverImageUrl) {
+      coverImg.src = bookData.coverImageUrl;
+    } else if (coverImg) {
+      coverImg.src = 'img/logo.png';
+    }
+
+    // Reset recensioni
+    if (reviewsContent) reviewsContent.style.display = 'none';
+    if (reviewsToggle) reviewsToggle.classList.remove('expanded');
+    if (reviewsList) reviewsList.innerHTML = '<div class="loading">Caricamento recensioni...</div>';
+    if (reviewsCount) reviewsCount.textContent = '(0)';
+    if (reviewCommentInput) reviewCommentInput.value = '';
+    if (starRatingValue) starRatingValue.textContent = '0 stelle';
+    
+    // Reset stelle
+    starInputStars.forEach(star => star.classList.remove('active'));
+
+    // Reset flag per permettere nuovo tentativo
+    reviewsLoadFailed = false;
+    isLoadingReviews = false;
+
+    // Carica recensioni
+    if (currentBookId) {
+      loadReviews(currentBookId);
+    }
+
+    // Mostra modal
+    if (bookModal) bookModal.classList.add('show');
+  }
+
+  function closeBookModal() {
+    if (bookModal) bookModal.classList.remove('show');
+    currentBookId = null;
+    selectedRating = 0;
+  }
+
+  async function loadReviews(bookId) {
+    // Evita chiamate multiple simultanee
+    if (isLoadingReviews) return;
+    
+    // Se abbiamo già fallito, non riprovare
+    if (reviewsLoadFailed) {
+      if (reviewsList) {
+        reviewsList.innerHTML = '<div class="no-reviews">Recensioni non disponibili.</div>';
+      }
+      if (reviewsCount) reviewsCount.textContent = '(0)';
+      return;
+    }
+
+    isLoadingReviews = true;
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/reviews`, {
+        headers: authHeaders()
+      });
+      
+      if (!res.ok) {
+        if (res.status === 404) {
+          renderReviews([]);
+          isLoadingReviews = false;
+          return;
+        }
+        // Se è 403 o altro errore, segna come fallito e non riprovare
+        if (res.status === 403) {
+          reviewsLoadFailed = true;
+          if (reviewsList) {
+            reviewsList.innerHTML = '<div class="no-reviews">Le recensioni non sono disponibili. Verifica i permessi.</div>';
+          }
+          if (reviewsCount) reviewsCount.textContent = '(0)';
+          console.warn('Accesso negato alle recensioni (403). L\'endpoint potrebbe richiedere permessi diversi.');
+          isLoadingReviews = false;
+          return;
+        }
+        throw new Error(`Errore ${res.status}`);
+      }
+      
+      const reviews = await res.json();
+      renderReviews(reviews);
+      reviewsLoadFailed = false; // Reset se ha successo
+    } catch (err) {
+      console.error('Errore nel caricamento recensioni:', err);
+      reviewsLoadFailed = true;
+      if (reviewsList) {
+        reviewsList.innerHTML = '<div class="no-reviews">Errore nel caricare le recensioni.</div>';
+      }
+      if (reviewsCount) reviewsCount.textContent = '(0)';
+    } finally {
+      isLoadingReviews = false;
+    }
+  }
+
+  function renderReviews(reviews) {
+    if (!reviewsList || !reviewsCount) return;
+
+    if (!reviews || reviews.length === 0) {
+      reviewsList.innerHTML = '<div class="no-reviews">Nessuna recensione ancora.</div>';
+      reviewsCount.textContent = '(0)';
+      return;
+    }
+
+    reviewsCount.textContent = `(${reviews.length})`;
+
+    reviewsList.innerHTML = reviews.map(review => {
+      const stars = Array.from({ length: 5 }, (_, i) => {
+        const filled = i < review.rating;
+        return `<span class="star ${filled ? '' : 'empty'}">★</span>`;
+      }).join('');
+
+      const date = review.reviewDate 
+        ? new Date(review.reviewDate).toLocaleDateString('it-IT', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        : '';
+
+      return `
+        <div class="review-item">
+          <div class="review-header">
+            <span class="review-user">${review.username || 'Utente'}</span>
+            <div class="review-rating">${stars}</div>
+          </div>
+          ${review.comment ? `<div class="review-comment">${review.comment}</div>` : ''}
+          ${date ? `<div class="review-date">${date}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Toggle recensioni
+  if (reviewsToggle) {
+    reviewsToggle.addEventListener('click', () => {
+      if (!reviewsContent) return;
+      
+      const isExpanded = reviewsToggle.classList.contains('expanded');
+      if (isExpanded) {
+        reviewsContent.style.display = 'none';
+        reviewsToggle.classList.remove('expanded');
+      } else {
+        reviewsContent.style.display = 'block';
+        reviewsToggle.classList.add('expanded');
+      }
+    });
+  }
+
+  // Gestione stelle
+  starInputStars.forEach((star, index) => {
+    star.addEventListener('click', () => {
+      selectedRating = index + 1;
+      starInputStars.forEach((s, i) => {
+        if (i < selectedRating) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+      if (starRatingValue) {
+        starRatingValue.textContent = selectedRating === 1 ? '1 stella' : `${selectedRating} stelle`;
+      }
+    });
+  });
+
+  // Invia recensione
+  if (btnSubmitReview) {
+    btnSubmitReview.addEventListener('click', async () => {
+      if (!currentBookId) {
+        alert('Errore: ID libro non disponibile.');
+        return;
+      }
+
+      if (selectedRating === 0) {
+        alert('Seleziona una valutazione da 1 a 5 stelle.');
+        return;
+      }
+
+      const comment = reviewCommentInput ? reviewCommentInput.value.trim() : '';
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/books/${currentBookId}/reviews`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            rating: selectedRating,
+            comment: comment || null
+          })
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          if (res.status === 403) {
+            alert('Non hai i permessi per lasciare una recensione. Verifica di aver prenotato questo libro.');
+            return;
+          }
+          throw new Error(errorText || `Errore ${res.status}`);
+        }
+
+        alert('Recensione inviata con successo!');
+        
+        // Reset form
+        selectedRating = 0;
+        if (reviewCommentInput) reviewCommentInput.value = '';
+        if (starRatingValue) starRatingValue.textContent = '0 stelle';
+        starInputStars.forEach(star => star.classList.remove('active'));
+
+        // Reset flag e ricarica recensioni
+        reviewsLoadFailed = false;
+        await loadReviews(currentBookId);
+      } catch (err) {
+        console.error('Errore nell\'invio recensione:', err);
+        alert('Errore nell\'invio della recensione: ' + err.message);
+      }
+    });
+  }
+
+  // Chiudi modal
+  if (modalClose) {
+    modalClose.addEventListener('click', closeBookModal);
+  }
+
+  if (bookModal) {
+    bookModal.addEventListener('click', (e) => {
+      if (e.target === bookModal) {
+        closeBookModal();
+      }
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', async () => {
     await loadProfile();

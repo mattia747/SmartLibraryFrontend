@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Pannello Admin - SmartLibrary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styleCatalog.css">
+  <style>
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-admin {
+      padding: 0.8rem 1.5rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: var(--white);
+    }
+
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+    }
+
+    .book-card-admin {
+      position: relative;
+    }
+
+    .book-card-admin .admin-buttons {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .add-book-section {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .add-book-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary-dark);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 0.8rem;
+      border: 2px solid var(--grey);
+      border-radius: var(--radius);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group-full {
+      grid-column: 1 / -1;
+    }
+
+    .review-admin-item {
+      position: relative;
+      padding-right: 3rem;
+    }
+
+    .review-delete-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 1rem;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+      border-left: 4px solid #c33;
+    }
+
+    .success-message {
+      background: #efe;
+      color: #3c3;
+      padding: 1rem;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+      border-left: 4px solid #3c3;
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+  <nav class="navbar">
+    <div class="logo">SmartLibrary - Admin</div>
+    <ul class="nav-links">
+      <li><a href="catalog.html">Catalogo</a></li>
+      <li><a href="profiloUtente.html">Profilo</a></li>
+      <li><button class="btn-admin btn-delete" onclick="logout()">Logout</button></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="main">
+  <div class="admin-header">
+    <h1>Pannello di Amministrazione</h1>
+    <div class="admin-actions">
+      <button class="btn-admin btn-add" onclick="toggleAddBookForm()">+ Aggiungi Libro</button>
+    </div>
+  </div>
+
+  <div id="message-container"></div>
+
+  <!-- Sezione Aggiungi Libro -->
+  <div id="add-book-section" class="add-book-section hidden">
+    <h2>Aggiungi Nuovo Libro</h2>
+    <form id="add-book-form" class="add-book-form">
+      <div class="form-group">
+        <label for="book-title">Titolo *</label>
+        <input type="text" id="book-title" required>
+      </div>
+      <div class="form-group">
+        <label for="book-author">Autore *</label>
+        <input type="text" id="book-author" required>
+      </div>
+      <div class="form-group">
+        <label for="book-genre">Genere *</label>
+        <select id="book-genre" required>
+          <option value="">Seleziona genere</option>
+          <option value="fiction">Narrativa</option>
+          <option value="fantasy">Fantasy</option>
+          <option value="romance">Romanzi rosa</option>
+          <option value="thriller">Thriller</option>
+          <option value="mystery">Gialli / Mystery</option>
+          <option value="history">Storia</option>
+          <option value="science">Scienza</option>
+          <option value="philosophy">Filosofia</option>
+          <option value="technology">Tecnologia</option>
+          <option value="biography">Biografie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="book-year">Anno di pubblicazione</label>
+        <input type="number" id="book-year" min="1000" max="9999">
+      </div>
+      <div class="form-group">
+        <label for="book-copies">Copie disponibili *</label>
+        <input type="number" id="book-copies" min="0" required>
+      </div>
+      <div class="form-group">
+        <label for="book-cover">URL Copertina</label>
+        <input type="url" id="book-cover" placeholder="https://...">
+      </div>
+      <div class="form-group form-group-full">
+        <label for="book-description">Descrizione</label>
+        <textarea id="book-description" placeholder="Inserisci una descrizione del libro..."></textarea>
+      </div>
+      <div class="form-group-full">
+        <button type="submit" class="btn-admin btn-add">Salva Libro</button>
+        <button type="button" class="btn-admin btn-delete" onclick="toggleAddBookForm()">Annulla</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Catalogo Libri -->
+  <section class="hero-catalog">
+    <h1>Gestione Catalogo</h1>
+    <p>Visualizza, aggiungi e rimuovi libri dal catalogo</p>
+
+    <form class="search-bar" autocomplete="on">
+      <div class="search-bar-inner">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Cerca per titolo, autore o parola chiave..."
+        />
+        <select id="genreFilter" class="genre-select">
+          <option value="">Tutti i generi</option>
+          <option value="fiction">Narrativa</option>
+          <option value="fantasy">Fantasy</option>
+          <option value="romance">Romanzi rosa</option>
+          <option value="thriller">Thriller</option>
+          <option value="mystery">Gialli / Mystery</option>
+          <option value="history">Storia</option>
+          <option value="science">Scienza</option>
+          <option value="philosophy">Filosofia</option>
+          <option value="technology">Tecnologia</option>
+          <option value="biography">Biografie</option>
+        </select>
+        <button type="submit" class="search-button">Cerca</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="books-container" class="books-grid">
+    <!-- I libri verranno inseriti qui -->
+  </div>
+
+  <!-- Modal Dettaglio Libro con Recensioni -->
+  <div id="book-modal" class="book-modal-overlay">
+    <div class="book-modal">
+      <button class="book-modal-close" aria-label="Chiudi">&times;</button>
+      <div class="book-modal-content">
+        <div class="book-modal-cover">
+          <img id="modal-cover" src="" alt="Copertina libro">
+        </div>
+        <div class="book-modal-info">
+          <h2 id="modal-title"></h2>
+          <p id="modal-authors" class="modal-authors"></p>
+          <p id="modal-categories" class="modal-categories"></p>
+          <p id="modal-published" class="modal-published"></p>
+          <p id="modal-description" class="modal-description"></p>
+          <div class="book-modal-actions">
+            <span id="modal-availability" class="book-availability"></span>
+            <button id="modal-delete-book" class="btn-admin btn-delete">Elimina Libro</button>
+          </div>
+          <!-- Sezione Recensioni -->
+          <div class="reviews-section">
+            <button class="reviews-toggle" id="reviews-toggle">
+              <span>Recensioni</span>
+              <span class="reviews-count" id="reviews-count">(0)</span>
+              <span class="reviews-arrow">▼</span>
+            </button>
+            <div class="reviews-content" id="reviews-content" style="display: none;">
+              <div id="reviews-list" class="reviews-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 SmartLibrary</p>
+</footer>
+
+<script>
+const API_BASE_URL = 'http://localhost:8080';
+let books = [];
+let selectedBook = null;
+
+// DOM Elements
+const container = document.getElementById('books-container');
+const searchForm = document.querySelector('.search-bar');
+const searchInput = document.getElementById('searchInput');
+const genreSelect = document.getElementById('genreFilter');
+const modalOverlay = document.getElementById('book-modal');
+const addBookSection = document.getElementById('add-book-section');
+const addBookForm = document.getElementById('add-book-form');
+const messageContainer = document.getElementById('message-container');
+
+function getToken() {
+  return localStorage.getItem('authToken');
+}
+
+function authHeaders() {
+  const token = getToken();
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+// Verifica se l'utente è admin
+async function checkAdminAccess() {
+  const token = getToken();
+  if (!token) {
+    alert('Accesso negato. Devi essere autenticato come admin.');
+    window.location.href = 'login.html';
+    return false;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, { headers: authHeaders() });
+    if (!res.ok) {
+      window.location.href = 'login.html';
+      return false;
+    }
+    const data = await res.json();
+    const role = data.role || data.roles?.[0] || '';
+    if (role !== 'ROLE_ADMIN' && role !== 'ADMIN' && !role.includes('ADMIN')) {
+      alert('Accesso negato. Solo gli amministratori possono accedere a questa pagina.');
+      window.location.href = 'catalog.html';
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('Errore verifica admin:', err);
+    window.location.href = 'login.html';
+    return false;
+  }
+}
+
+// Carica libri
+async function loadBooks(params = {}) {
+  const { title = '', genre = '' } = params;
+  const qs = new URLSearchParams();
+  if (title) qs.append('title', title);
+  if (genre) qs.append('genre', genre);
+
+  container.innerHTML = '<p>Caricamento dei libri in corso...</p>';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/books${qs.toString() ? `?${qs}` : ''}`);
+    if (!res.ok) throw new Error(`Errore ${res.status}`);
+    books = await res.json();
+    renderBooks();
+  } catch (err) {
+    console.error('Errore nel caricamento libri:', err);
+    container.innerHTML = '<p>Errore nel caricamento del catalogo.</p>';
+  }
+}
+
+function renderBooks() {
+  container.innerHTML = '';
+  if (!books.length) {
+    container.innerHTML = '<p>Nessun libro trovato.</p>';
+    return;
+  }
+
+  books.forEach((book) => {
+    const card = document.createElement('div');
+    card.className = 'book-card book-card-admin';
+    card.dataset.id = book.id;
+
+    const cover = book.coverImageUrl || 'img/logo.png';
+    const authors = book.author || 'Autore sconosciuto';
+    const year = book.publicationYear ? ` · ${book.publicationYear}` : '';
+    const copies = book.copiesAvailable ?? 'N/D';
+
+    card.innerHTML = `
+      <img src="${cover}" alt="Copertina libro" onerror="this.src='img/logo.png'">
+      <h3>${book.title}</h3>
+      <p>${authors}${year}</p>
+      <p class="author">Genere: ${book.genre || 'N/D'}</p>
+      <p class="author">Copie disponibili: ${copies}</p>
+      <div class="admin-buttons">
+        <button class="btn-admin btn-delete" onclick="deleteBook(${book.id})">Elimina</button>
+        <button class="btn-admin btn-add" onclick="openModal(${book.id})">Dettagli</button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+// Apri modal con dettagli libro
+async function openModal(bookId) {
+  const book = books.find(b => b.id === bookId);
+  if (!book) {
+    // Carica il libro se non è nella lista
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/books/${bookId}`, { headers: authHeaders() });
+      if (!res.ok) throw new Error(`Errore ${res.status}`);
+      selectedBook = await res.json();
+    } catch (err) {
+      showMessage('Errore nel caricamento del libro', 'error');
+      return;
+    }
+  } else {
+    selectedBook = book;
+  }
+
+  // Popola modal
+  document.getElementById('modal-title').textContent = selectedBook.title || 'Titolo non disponibile';
+  document.getElementById('modal-authors').textContent = selectedBook.author || 'Autore sconosciuto';
+  document.getElementById('modal-categories').textContent = selectedBook.genre ? `Genere: ${selectedBook.genre}` : 'Genere non disponibile';
+  document.getElementById('modal-published').textContent = selectedBook.publicationYear ? `Pubblicato: ${selectedBook.publicationYear}` : 'Anno non disponibile';
+  document.getElementById('modal-description').textContent = selectedBook.description || 'Nessuna descrizione disponibile.';
+  
+  const coverImg = document.getElementById('modal-cover');
+  coverImg.src = selectedBook.coverImageUrl || 'img/logo.png';
+  
+  const copies = selectedBook.copiesAvailable ?? 0;
+  document.getElementById('modal-availability').textContent = `Disponibile (${copies} copie)`;
+
+  // Reset recensioni
+  document.getElementById('reviews-content').style.display = 'none';
+  document.getElementById('reviews-toggle').classList.remove('expanded');
+  document.getElementById('reviews-list').innerHTML = '<div class="loading">Caricamento recensioni...</div>';
+  document.getElementById('reviews-count').textContent = '(0)';
+
+  // Carica recensioni
+  loadReviews(selectedBook.id);
+
+  modalOverlay.classList.add('show');
+}
+
+// Chiudi modal
+function closeModal() {
+  modalOverlay.classList.remove('show');
+  selectedBook = null;
+}
+
+// Elimina libro
+async function deleteBook(bookId) {
+  if (!confirm('Sei sicuro di voler eliminare questo libro? Questa azione è irreversibile.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/books/${bookId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || `Errore ${res.status}`);
+    }
+
+    showMessage('Libro eliminato con successo!', 'success');
+    await loadBooks({ title: searchInput?.value?.trim() || '', genre: genreSelect?.value || '' });
+  } catch (err) {
+    console.error('Errore eliminazione libro:', err);
+    showMessage('Errore nell\'eliminazione del libro: ' + err.message, 'error');
+  }
+}
+
+// Aggiungi libro
+addBookForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const bookData = {
+    title: document.getElementById('book-title').value.trim(),
+    author: document.getElementById('book-author').value.trim(),
+    genre: document.getElementById('book-genre').value,
+    publicationYear: document.getElementById('book-year').value ? parseInt(document.getElementById('book-year').value) : null,
+    copiesAvailable: parseInt(document.getElementById('book-copies').value) || 0,
+    coverImageUrl: document.getElementById('book-cover').value.trim() || null,
+    description: document.getElementById('book-description').value.trim() || null
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/books`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(bookData)
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || `Errore ${res.status}`);
+    }
+
+    showMessage('Libro aggiunto con successo!', 'success');
+    addBookForm.reset();
+    toggleAddBookForm();
+    await loadBooks({ title: searchInput?.value?.trim() || '', genre: genreSelect?.value || '' });
+  } catch (err) {
+    console.error('Errore aggiunta libro:', err);
+    showMessage('Errore nell\'aggiunta del libro: ' + err.message, 'error');
+  }
+});
+
+// Carica recensioni
+async function loadReviews(bookId) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/reviews`, {
+      headers: authHeaders()
+    });
+    
+    if (!res.ok) {
+      if (res.status === 404) {
+        renderReviews([]);
+        return;
+      }
+      throw new Error(`Errore ${res.status}`);
+    }
+    
+    const reviews = await res.json();
+    renderReviews(reviews);
+  } catch (err) {
+    console.error('Errore nel caricamento recensioni:', err);
+    document.getElementById('reviews-list').innerHTML = '<div class="no-reviews">Errore nel caricare le recensioni.</div>';
+    document.getElementById('reviews-count').textContent = '(0)';
+  }
+}
+
+function renderReviews(reviews) {
+  const reviewsList = document.getElementById('reviews-list');
+  const reviewsCount = document.getElementById('reviews-count');
+
+  if (!reviews || reviews.length === 0) {
+    reviewsList.innerHTML = '<div class="no-reviews">Nessuna recensione ancora.</div>';
+    reviewsCount.textContent = '(0)';
+    return;
+  }
+
+  reviewsCount.textContent = `(${reviews.length})`;
+
+  reviewsList.innerHTML = reviews.map(review => {
+    const stars = Array.from({ length: 5 }, (_, i) => {
+      const filled = i < review.rating;
+      return `<span class="star ${filled ? '' : 'empty'}">★</span>`;
+    }).join('');
+
+    const date = review.reviewDate 
+      ? new Date(review.reviewDate).toLocaleDateString('it-IT', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      : '';
+
+    return `
+      <div class="review-item review-admin-item">
+        <div class="review-header">
+          <span class="review-user">${review.username || 'Utente'}</span>
+          <div class="review-rating">${stars}</div>
+        </div>
+        ${review.comment ? `<div class="review-comment">${review.comment}</div>` : ''}
+        ${date ? `<div class="review-date">${date}</div>` : ''}
+        <button class="btn-admin btn-delete review-delete-btn" onclick="deleteReview(${review.id}, ${selectedBook.id})">Elimina</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Elimina recensione
+async function deleteReview(reviewId, bookId) {
+  if (!confirm('Sei sicuro di voler eliminare questa recensione?')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || `Errore ${res.status}`);
+    }
+
+    showMessage('Recensione eliminata con successo!', 'success');
+    await loadReviews(bookId);
+  } catch (err) {
+    console.error('Errore eliminazione recensione:', err);
+    showMessage('Errore nell\'eliminazione della recensione: ' + err.message, 'error');
+  }
+}
+
+// Toggle form aggiungi libro
+function toggleAddBookForm() {
+  addBookSection.classList.toggle('hidden');
+}
+
+// Mostra messaggio
+function showMessage(message, type = 'success') {
+  messageContainer.innerHTML = `<div class="${type}-message">${message}</div>`;
+  setTimeout(() => {
+    messageContainer.innerHTML = '';
+  }, 5000);
+}
+
+// Logout
+function logout() {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('authUser');
+  localStorage.removeItem('userRole');
+  window.location.href = 'login.html';
+}
+
+// Event listeners
+document.querySelector('.book-modal-close').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
+
+document.getElementById('reviews-toggle').addEventListener('click', () => {
+  const content = document.getElementById('reviews-content');
+  const toggle = document.getElementById('reviews-toggle');
+  const isExpanded = toggle.classList.contains('expanded');
+  if (isExpanded) {
+    content.style.display = 'none';
+    toggle.classList.remove('expanded');
+  } else {
+    content.style.display = 'block';
+    toggle.classList.add('expanded');
+  }
+});
+
+document.getElementById('modal-delete-book').addEventListener('click', () => {
+  if (selectedBook) {
+    deleteBook(selectedBook.id);
+    closeModal();
+  }
+});
+
+if (searchForm && searchInput) {
+  searchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    loadBooks({ title: searchInput.value.trim(), genre: genreSelect?.value || '' });
+  });
+}
+
+if (genreSelect) {
+  genreSelect.addEventListener('change', () => {
+    loadBooks({ title: searchInput?.value?.trim() || '', genre: genreSelect.value });
+  });
+}
+
+// Inizializzazione
+document.addEventListener('DOMContentLoaded', async () => {
+  const isAdmin = await checkAdminAccess();
+  if (isAdmin) {
+    await loadBooks();
+  }
+});
+</script>
+</body>
+</html>
+

@@ -51,8 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.username) {
           localStorage.setItem('authUser', data.username);
         }
-        // Redirect al catalogo
-        window.location.href = 'catalog.html';
+        if (data.role) {
+          localStorage.setItem('userRole', data.role);
+        }
+        // Controlla se è admin e reindirizza
+        const role = data.role || data.roles?.[0] || '';
+        if (role === 'ROLE_ADMIN' || role === 'ADMIN' || role.includes('ADMIN')) {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'catalog.html';
+        }
       })
       .catch(err => {
         console.error('Login error:', err);

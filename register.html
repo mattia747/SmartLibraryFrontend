@@ -16,7 +16,7 @@
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
-      <li><a href="login.html">Login</a></li>
+      <li id="loginLink" style="display: none;"><a href="login.html">Login</a></li>
       <li><a href="profiloUtente.html">Profilo</a></li>
     </ul>
   </nav>
@@ -39,6 +39,9 @@
 
         <h3>Età</h3>
         <input type="number" placeholder="Inserisci la tua età" required>
+
+        <h3>Username</h3>
+        <input type="text" id="username" name="username" placeholder="Scegli un username" required>
 
         <h3>Email</h3>
         <input type="email" placeholder="esempio@email.com" required>
@@ -67,6 +70,18 @@
 </footer>
 
 <script src="js/register.js"></script>
+<script>
+  // Nascondi link Login se l'utente è loggato
+  document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('authToken');
+    const loginLink = document.getElementById('loginLink');
+    if (token && loginLink) {
+      loginLink.style.display = 'none';
+    } else if (loginLink) {
+      loginLink.style.display = 'block';
+    }
+  });
+</script>
 
 </body>
 </html>
