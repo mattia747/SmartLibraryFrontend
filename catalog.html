@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styleCatalog.css">
+  <link rel="icon" type="image/x-icon" href="img\favicon.ico">
 </head>
 
 <body>
@@ -15,11 +16,16 @@
   <nav class="navbar">
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
-      <li id="loginLink" style="display: none;"><a href="login.html">Login</a></li>
-      <li><a href="profiloUtente.html">Profilo</a></li>
+      <li><a href="catalog.html">Catalogo</a></li>
+
+
+      <li><a href="gestioneProfiloUtente.html" id="profileLink">Profilo</a></li>
+
+      <li><a href="login.html" id="logoutLink">Logout</a></li>
     </ul>
   </nav>
 </header>
+
 
 <main class="main">
   <section class="hero-catalog">
@@ -116,18 +122,7 @@
   <p>&copy; 2025 SmartLibrary</p>
 </footer>
 
-<script src="js/jsCatalog.js"></script>
-<script>
-  // Nascondi link Login se l'utente è loggato
-  document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('authToken');
-    const loginLink = document.getElementById('loginLink');
-    if (token && loginLink) {
-      loginLink.style.display = 'none';
-    } else if (loginLink) {
-      loginLink.style.display = 'block';
-    }
-  });
+<script src="js/jsCatalog.js">
 </script>
 </body>
 </html>

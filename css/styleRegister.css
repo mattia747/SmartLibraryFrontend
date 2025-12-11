@@ -270,10 +270,22 @@ body {
 
 /* Immagine */
 .hero-img {
-  max-width: 300px;
+  max-width: 450px;
   height: auto;
+  margin-top: 150px;
+  margin-right: 60px;
   filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
   animation: float 3s ease-in-out infinite;
+}
+
+
+@media (max-width: 968px) {
+
+  .hero-img {
+    margin: 40px auto 0 auto !important;
+    display: block;
+    max-width: 70%;
+  }
 }
 
 @keyframes float {

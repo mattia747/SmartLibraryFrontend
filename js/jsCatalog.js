@@ -4,6 +4,8 @@ const API_BASE_URL = 'http://localhost:8080';
 // Stato
 let books = [];
 let selectedBook = null;
+// indice del libro attualmente aperto nel modal
+let currentIndex = null;
 
 // DOM
 const container = document.getElementById('books-container');
@@ -27,6 +29,31 @@ const reviewsToggle = document.getElementById('reviews-toggle');
 const reviewsContent = document.getElementById('reviews-content');
 const reviewsList = document.getElementById('reviews-list');
 const reviewsCount = document.getElementById('reviews-count');
+const modalPrev = document.getElementById('modal-prev');
+const modalNext = document.getElementById('modal-next');
+
+
+// ===============================
+// Gestione link Profilo in base al ruolo
+// ===============================
+document.addEventListener('DOMContentLoaded', () => {
+  const profileLink = document.getElementById('profileLink');
+  if (!profileLink) return;
+
+  const rawRole = (localStorage.getItem('userRole') || '').toUpperCase();
+
+  // DEBUG: vedi il ruolo che legge
+  console.log("Ruolo utente:", rawRole);
+
+  if (rawRole.includes('ADMIN')) {
+    // Admin → pagina admin
+    profileLink.href = 'gestioneProfiloAdmin.html';
+  } else {
+    // Utente → pagina utente
+    profileLink.href = 'gestioneProfiloUtente.html';
+  }
+});
+
 
 function getToken() {
   return localStorage.getItem('authToken');
@@ -68,7 +95,7 @@ function renderBooks() {
     return;
   }
 
-  books.forEach((book) => {
+  books.forEach((book, index) => {
     const card = document.createElement('div');
     card.className = 'book-card';
     card.dataset.id = book.id;
@@ -77,7 +104,6 @@ function renderBooks() {
     const authors = book.author || 'Autore sconosciuto';
     const year = book.publicationYear ? ` · ${book.publicationYear}` : '';
     const copies = book.copiesAvailable ?? 'N/D';
-    const available = book.copiesAvailable > 0;
 
     card.innerHTML = `
       <img src="${cover}" alt="Copertina libro">
@@ -85,20 +111,11 @@ function renderBooks() {
       <p>${authors}${year}</p>
       <p class="author">Genere: ${book.genre || 'N/D'}</p>
       <p class="author">Copie disponibili: ${copies}</p>
-      <button class="reserve-btn" ${available ? '' : 'disabled'}>Prenota</button>
     `;
 
-    // Clic su card apre il modal
-    card.addEventListener('click', (e) => {
-      // evitiamo che il click sul bottone venga gestito qui
-      if (e.target.classList.contains('reserve-btn')) return;
-      openModal(book);
-    });
-
-    // Bottone prenota
-    card.querySelector('.reserve-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      openModal(book);
+    // 👉 tutta la card apre il modal in base all'indice
+    card.addEventListener('click', () => {
+      openModal(index);
     });
 
     container.appendChild(card);
@@ -108,13 +125,24 @@ function renderBooks() {
 // ===============================
 // Modal
 // ===============================
-function openModal(book) {
+
+function openModal(index) {
+  if (index < 0 || index >= books.length) return;
+
+  currentIndex = index;
+  const book = books[index];
   selectedBook = book;
+
   if (modalTitle) modalTitle.textContent = book.title || 'Titolo non disponibile';
   if (modalAuthors) modalAuthors.textContent = book.author || 'Autore sconosciuto';
-  if (modalCategories) modalCategories.textContent = book.genre ? `Genere: ${book.genre}` : 'Genere non disponibile';
-  if (modalPublished) modalPublished.textContent = book.publicationYear ? `Pubblicato: ${book.publicationYear}` : 'Anno non disponibile';
-  if (modalDescription) modalDescription.textContent = book.description || 'Nessuna descrizione disponibile.';
+  if (modalCategories)
+    modalCategories.textContent = book.genre ? `Genere: ${book.genre}` : 'Genere non disponibile';
+  if (modalPublished)
+    modalPublished.textContent = book.publicationYear
+      ? `Pubblicato: ${book.publicationYear}`
+      : 'Anno non disponibile';
+  if (modalDescription)
+    modalDescription.textContent = book.description || 'Nessuna descrizione disponibile.';
   if (modalCover) {
     const cover = book.coverImageUrl || 'img/logo.png';
     modalCover.src = cover;
@@ -124,12 +152,22 @@ function openModal(book) {
   const copies = book.copiesAvailable ?? 0;
   const available = copies > 0;
   if (modalAvailability) {
-    modalAvailability.textContent = available ? `Disponibile (${copies} copie)` : 'Non disponibile';
+    modalAvailability.textContent = available
+      ? `Disponibile (${copies} copie)`
+      : 'Non disponibile';
     modalAvailability.classList.toggle('available', available);
     modalAvailability.classList.toggle('unavailable', !available);
   }
   if (modalBookButton) {
     modalBookButton.disabled = !available;
+  }
+
+  // abilita / disabilita i bottoni Prev/Next
+  if (modalPrev) {
+    modalPrev.disabled = currentIndex <= 0;
+  }
+  if (modalNext) {
+    modalNext.disabled = currentIndex >= books.length - 1;
   }
 
   // Reset recensioni
@@ -149,6 +187,7 @@ function openModal(book) {
 function closeModal() {
   if (modalOverlay) modalOverlay.classList.remove('show');
   selectedBook = null;
+  currentIndex = null;
 }
 
 if (modalCloseBtn) {
@@ -159,16 +198,57 @@ if (modalOverlay) {
     if (e.target === modalOverlay) closeModal();
   });
 }
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
-});
 
+// tasto prenota dal modal
 if (modalBookButton) {
   modalBookButton.addEventListener('click', async () => {
     if (!selectedBook) return;
     await reserveBook(selectedBook.id);
   });
 }
+
+// bottoni avanti / indietro nel modal
+if (modalPrev) {
+  modalPrev.addEventListener('click', () => {
+    if (currentIndex === null) return;
+    if (currentIndex > 0) {
+      openModal(currentIndex - 1);
+    }
+  });
+}
+if (modalNext) {
+  modalNext.addEventListener('click', () => {
+    if (currentIndex === null) return;
+    if (currentIndex < books.length - 1) {
+      openModal(currentIndex + 1);
+    }
+  });
+}
+
+// tastiera: Esc, freccia sinistra/destra
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+  } else if (e.key === 'ArrowRight') {
+    if (
+      modalOverlay &&
+      modalOverlay.classList.contains('show') &&
+      currentIndex !== null &&
+      currentIndex < books.length - 1
+    ) {
+      openModal(currentIndex + 1);
+    }
+  } else if (e.key === 'ArrowLeft') {
+    if (
+      modalOverlay &&
+      modalOverlay.classList.contains('show') &&
+      currentIndex !== null &&
+      currentIndex > 0
+    ) {
+      openModal(currentIndex - 1);
+    }
+  }
+});
 
 // ===============================
 // Prenotazione
@@ -189,7 +269,10 @@ async function reserveBook(bookId) {
     if (res.ok) {
       alert('Prenotazione confermata! Riceverai una email con i dettagli.');
       closeModal();
-      await loadBooks({ title: searchInput?.value?.trim() || '', genre: genreSelect?.value || '' });
+      await loadBooks({
+        title: searchInput?.value?.trim() || '',
+        genre: genreSelect?.value || ''
+      });
     } else {
       const errorText = await res.text();
       alert(`Errore: ${errorText || 'Prenotazione non riuscita'}`);
@@ -208,7 +291,7 @@ async function loadReviews(bookId) {
     const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/reviews`, {
       headers: authHeaders()
     });
-    
+
     if (!res.ok) {
       if (res.status === 404) {
         // Nessuna recensione trovata
@@ -217,7 +300,7 @@ async function loadReviews(bookId) {
       }
       throw new Error(`Errore ${res.status}`);
     }
-    
+
     const reviews = await res.json();
     renderReviews(reviews);
   } catch (err) {
@@ -240,21 +323,22 @@ function renderReviews(reviews) {
 
   reviewsCount.textContent = `(${reviews.length})`;
 
-  reviewsList.innerHTML = reviews.map(review => {
-    const stars = Array.from({ length: 5 }, (_, i) => {
-      const filled = i < review.rating;
-      return `<span class="star ${filled ? '' : 'empty'}">★</span>`;
-    }).join('');
+  reviewsList.innerHTML = reviews
+    .map((review) => {
+      const stars = Array.from({ length: 5 }, (_, i) => {
+        const filled = i < review.rating;
+        return `<span class="star ${filled ? '' : 'empty'}">★</span>`;
+      }).join('');
 
-    const date = review.reviewDate 
-      ? new Date(review.reviewDate).toLocaleDateString('it-IT', {
+      const date = review.reviewDate
+        ? new Date(review.reviewDate).toLocaleDateString('it-IT', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
         })
-      : '';
+        : '';
 
-    return `
+      return `
       <div class="review-item">
         <div class="review-header">
           <span class="review-user">${review.username || 'Utente'}</span>
@@ -264,14 +348,15 @@ function renderReviews(reviews) {
         ${date ? `<div class="review-date">${date}</div>` : ''}
       </div>
     `;
-  }).join('');
+    })
+    .join('');
 }
 
 // Toggle recensioni
 if (reviewsToggle) {
   reviewsToggle.addEventListener('click', () => {
     if (!reviewsContent) return;
-    
+
     const isExpanded = reviewsToggle.classList.contains('expanded');
     if (isExpanded) {
       reviewsContent.style.display = 'none';
@@ -300,3 +385,6 @@ if (genreSelect) {
 
 // Init
 loadBooks();
+
+
+//inoltre quando sono in catalago (e sono già loggato come admin) se clicclo il collegamento nella navbar per la gestione del profilo, mi fa vedere il profilo dell'utente e non dell'admin

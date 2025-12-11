@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Profilo - SmartLibrary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styleGestioneProfiloUtente.css">
+  <link rel="icon" type="image/x-icon" href="img\favicon.ico">
+
+</head>
+<body>
+
+<header class="header">
+  <nav class="navbar">
+    <div class="logo">SmartLibrary</div>
+    <ul class="nav-links">
+      <li><a href="catalog.html">Catalogo</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="main">
+  <aside class="profile-sidebar">
+    <div class="profile-pic" id="profilePic">
+      <span id="profilePicText">U</span>
+    </div>
+    <input type="file" id="profilePicInput" accept="image/*">
+    <h1 class="profile-name" id="profileName">Caricamento...</h1>
+    <p class="profile-email" id="profileEmail">-</p>
+
+    <button class="btn-logout" id="btnLogout">Logout</button>
+    <button class="btn-delete-account" id="btnDeleteAccount">Elimina account</button>
+  </aside>
+
+  <section class="books-section">
+    <div class="books-header">
+      <h2>Prenotazioni attive</h2>
+    </div>
+
+    <!-- Error message -->
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+    <!-- Loading state -->
+    <div id="profileLoading" class="loading">Caricamento dati profilo...</div>
+
+    <div class="books-container" id="booksContainer" style="display: none;">
+      <!-- Le prenotazioni verranno generate dinamicamente -->
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 SmartLibrary</p>
+</footer>
+
+<!-- Modal dettagli libro -->
+<div class="modal" id="bookModal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">×</button>
+
+    <div class="modal-header-section">
+      <div class="modal-book-cover">
+        <img id="modalBookCover" src="img/logo.png" alt="Copertina libro" onerror="this.src='img/logo.png'">
+      </div>
+
+      <div class="modal-book-info">
+        <h3 id="modalTitle">Titolo Libro</h3>
+        <div class="modal-info">
+          <div class="modal-info-row">
+            <span class="modal-info-label">Autore:</span>
+            <span class="modal-info-value" id="modalAuthor">-</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-label">Anno:</span>
+            <span class="modal-info-value" id="modalYear">-</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-label">Genere:</span>
+            <span class="modal-info-value" id="modalGenre">-</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-label">Stato:</span>
+            <span class="modal-info-value" id="modalStatus">Prenotato</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sezione Recensioni -->
+    <div class="reviews-section">
+      <button class="reviews-toggle" id="reviews-toggle">
+        <span>Recensioni</span>
+        <span class="reviews-count" id="reviews-count">(0)</span>
+        <span class="reviews-arrow">▼</span>
+      </button>
+
+      <div class="reviews-content" id="reviews-content" style="display: none;">
+        <!-- Form per lasciare recensione -->
+        <div class="review-form-section" id="review-form-section">
+          <h4>Lascia una recensione</h4>
+          <div class="star-rating-input">
+            <span>Valutazione:</span>
+            <div class="star-input">
+              <span class="star-input-star" data-rating="1">★</span>
+              <span class="star-input-star" data-rating="2">★</span>
+              <span class="star-input-star" data-rating="3">★</span>
+              <span class="star-input-star" data-rating="4">★</span>
+              <span class="star-input-star" data-rating="5">★</span>
+            </div>
+            <span class="star-rating-value" id="star-rating-value">0 stelle</span>
+          </div>
+
+          <textarea
+            id="review-comment-input"
+            class="review-comment-input"
+            placeholder="Commento (opzionale)"
+            rows="4"
+          ></textarea>
+
+          <button class="btn-modal btn-modal-primary" id="btn-submit-review">
+            Invia recensione
+          </button>
+        </div>
+
+        <!-- Lista recensioni -->
+        <div id="reviews-list" class="reviews-list">
+          <!-- Le recensioni verranno caricate qui -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal conferma eliminazione account -->
+<div class="confirm-modal" id="deleteAccountModal">
+  <div class="confirm-modal-content">
+    <h3 class="confirm-modal-title">Conferma eliminazione account</h3>
+    <p class="confirm-modal-text">
+      Sei sicuro di voler eliminare il tuo account?<br>
+      <strong>Questa azione è irreversibile</strong> e comporterà:
+    </p>
+    <ul class="confirm-modal-list">
+      <li>La perdita di tutte le tue prenotazioni</li>
+      <li>La cancellazione dei tuoi dati</li>
+      <li>L'impossibilità di recuperare l'account</li>
+    </ul>
+    <div class="confirm-modal-actions">
+      <button class="btn-modal btn-modal-secondary" id="cancelDeleteAccount">
+        Annulla
+      </button>
+      <button class="btn-modal btn-modal-primary btn-danger" id="confirmDeleteAccount">
+        Elimina definitivamente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script src="js/gestioneProfiloUtente.js"></script>
+</body>
+</html>

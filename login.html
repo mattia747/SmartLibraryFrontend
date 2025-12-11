@@ -2,38 +2,16 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>SmartLibrary</title>
+  <title>SmartLibrary - Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Font + CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styleLogin.css">
-  <style>
-    .error-message {
-      color: #e74c3c;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-top: 0.5rem;
-      margin-bottom: 0.5rem;
-      display: none;
-      animation: shake 0.3s ease;
-    }
+  <link rel="icon" type="image/x-icon" href="img\favicon.ico">
 
-    .error-message.show {
-      display: block;
-    }
-
-    .input-error {
-      border-color: #e74c3c !important;
-      background-color: #fef5f5 !important;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-  </style>
 </head>
 <body>
 <header class="header">
@@ -42,14 +20,16 @@
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
       <li id="loginLink" style="display: none;"><a href="login.html">Login</a></li>
-      <li><a href="profiloUtente.html">Profilo</a></li>
+      <li><a href="gestioneProfiloUtente.html">Profilo</a></li>
     </ul>
   </nav>
 </header>
+
 <main class="main">
   <section class="hero">
     <h1>Benvenuto in SmartLibrary</h1>
     <p>La tua libreria digitale per prenotare e consultare libri.</p>
+
     <div class="hero-content">
       <form class="hero-form" id="loginForm">
         <h3>Username</h3>
@@ -62,157 +42,23 @@
 
         <div class="error-message" id="generalError"></div>
 
-        <p>Se non sei registrato, puoi farlo ora <a href="register.html" class="linkToPage">qui</a></p>
+        <p>Se non sei registrato, puoi farlo ora
+          <a href="register.html" class="linkToPage">qui</a>
+        </p>
+
         <button class="btn-primary" type="submit">Login</button>
       </form>
+
       <img src="img/logo.png" class="hero-img" alt="Logo SmartLibrary">
     </div>
   </section>
 </main>
+
 <footer class="footer">
   <p>&copy; 2025 SmartLibrary</p>
 </footer>
 
-<script>
-  const form = document.getElementById('loginForm');
-  const usernameInput = document.getElementById('username');
-  const passwordInput = document.getElementById('password');
-  const usernameError = document.getElementById('usernameError');
-  const passwordError = document.getElementById('passwordError');
-  const generalError = document.getElementById('generalError');
-
-  // Funzione per mostrare errore
-  function showError(element, message, inputElement = null) {
-    element.textContent = message;
-    element.classList.add('show');
-    if (inputElement) {
-      inputElement.classList.add('input-error');
-    }
-  }
-
-  // Funzione per nascondere errore
-  function hideError(element, inputElement = null) {
-    element.textContent = '';
-    element.classList.remove('show');
-    if (inputElement) {
-      inputElement.classList.remove('input-error');
-    }
-  }
-
-  // Nascondi errori quando l'utente inizia a digitare
-  usernameInput.addEventListener('input', () => {
-    hideError(usernameError, usernameInput);
-    hideError(generalError);
-  });
-
-  passwordInput.addEventListener('input', () => {
-    hideError(passwordError, passwordInput);
-    hideError(generalError);
-  });
-
-  // Evita doppio listener se carichi anche app.js
-  if (!window.loginHandlerAttached) {
-    window.loginHandlerAttached = true;
-
-    form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // Nascondi tutti gli errori precedenti
-    hideError(usernameError, usernameInput);
-    hideError(passwordError, passwordInput);
-    hideError(generalError);
-
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    // Validazione client-side
-    let hasError = false;
-
-    if (!username) {
-      showError(usernameError, 'Username obbligatorio', usernameInput);
-      hasError = true;
-    }
-
-    if (!password) {
-      showError(passwordError, 'Password obbligatoria', passwordInput);
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    // Chiamata API
-    try {
-      const response = await fetch('http://localhost:8080/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (response.ok) {
-        const data = await response.json().catch(() => ({}));
-        console.log('Dati login ricevuti:', data);
-        // Salva il token o i dati utente
-        if (data.token) {
-          localStorage.setItem('authToken', data.token);
-          console.log('Token salvato in localStorage');
-        } else {
-          console.warn('Nessun token nella risposta!');
-        }
-        if (data.username) localStorage.setItem('authUser', data.username);
-        if (data.role) localStorage.setItem('userRole', data.role);
-        // (compat) rimuovi vecchie chiavi
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userId');
-        // Verifica che il token sia stato salvato
-        const savedToken = localStorage.getItem('authToken');
-        console.log('Token salvato verificato:', savedToken ? 'OK' : 'MANCANTE');
-        
-        // Controlla se è admin e reindirizza
-        const role = data.role || data.roles?.[0] || '';
-        if (role === 'ROLE_ADMIN' || role === 'ADMIN' || role.includes('ADMIN')) {
-          window.location.href = 'admin.html';
-        } else {
-          window.location.href = 'catalog.html';
-        }
-      } else {
-        // Prova a leggere JSON, altrimenti testo semplice
-        let errorMessage = 'Errore durante il login. Riprova.';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          const text = await response.text();
-          if (text) errorMessage = text;
-        }
-
-        // Gestisci diversi tipi di errore
-        if (response.status === 401) {
-          showError(generalError, 'Username o password non corretti');
-        } else if (response.status === 404) {
-          showError(generalError, 'Utente non trovato');
-        } else {
-          showError(generalError, errorMessage);
-        }
-      }
-    } catch (error) {
-      console.error('Errore:', error);
-      showError(generalError, 'Errore di connessione al server. Riprova più tardi.');
-    }
-    });
-  }
-
-  // Nascondi link Login se l'utente è loggato
-  document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('authToken');
-    const loginLink = document.getElementById('loginLink');
-    if (token && loginLink) {
-      loginLink.style.display = 'none';
-    } else if (loginLink) {
-      loginLink.style.display = 'block';
-    }
-  });
-</script>
+<!-- JavaScript -->
+<script src="js/login.js"></script>
 </body>
 </html>

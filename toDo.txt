@@ -2,6 +2,33 @@
 - aggiungere barra di ricerca ✔️
 - aggiungere filtri ✔️
 - apertura pagina singolo libro ️✔️
-- configurare pagina gestioneProfilo
-- favicon per tutte le pagine 
-- aggiungere opzione "aggiungi alla mia lista"
+- favicon per tutte le pagine ✔
+
+
+
+Registrazione:✔
+- Sistemare la schermata perché il logo non è al centro, c'è troppo spazio vuoto, riordinare i vari elementi
+- Sistemare i vari messaggi di errore facendo le scritte rosse da errore sotto i vari campi in base all'errore (Alcuni già ci sono ma non tutti)
+- Eliminare il campo età? (Non lo utilizziamo)
+
+- Login:✔
+Sistemare i vari messaggi di errore facendo le scritte rosse da errore sotto i vari campi in base all'errore, come ad esempio password errata e cose cosi (Alcuni già ci sono ma non tutti) ️️✔️
+
+Catalogo:✔
+- Sotto il numero di copie disponibili c'è un tasto prenota che va tolto, poiché la prenotazione si fa cliccando sul libro
+- Nella scheda dei libri ci sono delle frecce con scritto successivo e precedente, non funzionano, sistemarle o toglierle️️
+
+
+- Gestione Profilo:✔
+Nel momento in cui vuoi eliminare l'account trovare un modo per far chiedere conferma dell'eliminazione in modo diverso, perché come è adesso è brutto
+Tasto restituisci e rinnova prestito, non funziona nella scheda libro dei libri prenotati, rimuoverli
+
+
+- Admin:✔
+Nel momento in cui ti logghi come admin, la prima volta vedi il catalogo da ADMIN
+(ossia hai la possibilità di modificare quello che vuoi)
+ma una volta premuto sul tasto profilo e tornando al catalogo si vede il catalogo da USER,
+risolvere questo problema per far si che se si è loggato da ADMIN si vede sempre il catalogo da ADMIN
+Renderla un po piu bella
+
+La pagina Admin e la pagina Gestione Profilo hanno il css dentro il file html, dovremmo dividerli per ordinare un po di piu il frontend✔

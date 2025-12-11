@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Controlla se è admin e reindirizza
         const role = data.role || data.roles?.[0] || '';
         if (role === 'ROLE_ADMIN' || role === 'ADMIN' || role.includes('ADMIN')) {
-          window.location.href = 'admin.html';
+          window.location.href = 'gestioneProfiloAdmin.html';
         } else {
           window.location.href = 'catalog.html';
         }
