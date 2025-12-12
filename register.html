@@ -4,60 +4,73 @@
   <meta charset="UTF-8">
   <title>Registrati - SmartLibrary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/styleRegister.css">
-  <link rel="icon" type="image/x-icon" href="img\favicon.ico">
-
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 </head>
-<body>
 
+<body>
 <header class="header">
   <nav class="navbar">
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
-      <li id="loginLink" style="display: none;"><a href="login.html">Login</a></li>
-      <li><a href="profiloUtente.html">Profilo</a></li>
+      <li id="loginLink" style="display:none;"><a href="login.html">Login</a></li>
     </ul>
   </nav>
 </header>
 
 <main class="main">
   <section class="hero">
-
     <h1>Registrati compilando i campi</h1>
 
     <div class="hero-content">
 
-      <!-- COLONNA SINISTRA: FORM -->
-      <form class="hero-form">
-        <h3>Nome</h3>
-        <input type="text" placeholder="Inserisci il tuo nome" required>
+      <!-- COLONNA SINISTRA -->
+      <form class="hero-form" id="registerForm">
 
-        <h3>Cognome</h3>
-        <input type="text" placeholder="Inserisci il tuo cognome" required>
+        <div class="form-row">
+          <div class="field">
+            <h3>Nome</h3>
+            <input type="text" placeholder="Inserisci il tuo nome" required>
+          </div>
+
+          <div class="field">
+            <h3>Cognome</h3>
+            <input type="text" placeholder="Inserisci il tuo cognome" required>
+          </div>
+        </div>
 
         <h3>Username</h3>
-        <input type="text" id="username" name="username" placeholder="Scegli un username" required>
+        <input type="text" id="username" placeholder="Scegli un username" required>
 
         <h3>Email</h3>
         <input type="email" placeholder="esempio@email.com" required>
 
         <h3>Password</h3>
         <input type="password" placeholder="Inserisci una password" required>
-
-        <p>Se sei già registrato effettua il
-          <a href="login.html" class="linkToPage">login</a>
-        </p>
-
-        <button class="btn-primary" type="submit">Registrati</button>
       </form>
 
-        <!-- Immagine sotto -->
+      <!-- COLONNA DESTRA -->
+      <div class="hero-right">
         <img src="img/logo.png" class="hero-img" alt="Logo SmartLibrary">
 
+        <p class="login-hint">
+          Sei già registrato?
+          <a href="login.html" class="linkToPage">Accedi</a>
+        </p>
+
+        <button
+          class="btn-primary btn-register-right"
+          type="submit"
+          form="registerForm"
+        >
+          Registrati
+        </button>
       </div>
 
     </div>
@@ -70,16 +83,11 @@
 
 <script src="js/register.js"></script>
 <script>
-  // Nascondi link Login se l'utente è loggato
-  document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('authToken');
-    const loginLink = document.getElementById('loginLink');
-    if (token && loginLink) {
-      loginLink.style.display = 'none';
-    } else if (loginLink) {
-      loginLink.style.display = 'block';
-    }
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('authToken');
+  const loginLink = document.getElementById('loginLink');
+  loginLink.style.display = token ? 'none' : 'block';
+});
 </script>
 
 </body>
