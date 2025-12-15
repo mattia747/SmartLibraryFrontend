@@ -17,11 +17,8 @@
     <div class="logo">SmartLibrary</div>
     <ul class="nav-links">
       <li><a href="catalog.html">Catalogo</a></li>
-
-
       <li><a href="gestioneProfiloUtente.html" id="profileLink">Profilo</a></li>
-
-      <li><a href="login.html" id="logoutLink">Logout</a></li>
+      <li><a href="login.html" id="loginLogoutLink">Login</a></li>
     </ul>
   </nav>
 </header>
@@ -63,12 +60,10 @@
   </section>
 
   <div id="books-container" class="books-grid">
-    <!-- I libri dell'API verranno inseriti qui da JavaScript -->
   </div>
 
   <div id="pagination" class="pagination"></div>
 
-  <!-- Modal dettaglio libro -->
   <div id="book-modal" class="book-modal-overlay">
     <div class="book-modal">
       <button class="book-modal-close" aria-label="Chiudi dettaglio libro">&times;</button>
@@ -94,7 +89,6 @@
             </button>
           </div>
 
-          <!-- Sezione Recensioni -->
           <div class="reviews-section">
             <button class="reviews-toggle" id="reviews-toggle">
               <span>Recensioni</span>
@@ -103,7 +97,6 @@
             </button>
             <div class="reviews-content" id="reviews-content" style="display: none;">
               <div id="reviews-list" class="reviews-list">
-                <!-- Le recensioni verranno caricate qui -->
               </div>
             </div>
           </div>
@@ -117,6 +110,16 @@
     </div>
   </div>
 </main>
+
+<div class="alert-modal" id="alertModal">
+  <div class="alert-modal-content">
+    <h3 class="alert-modal-title" id="alertModalTitle">Avviso</h3>
+    <p class="alert-modal-text" id="alertModalText"></p>
+    <div class="alert-modal-actions">
+      <button class="btn-modal btn-modal-primary" id="alertModalOk">Ok</button>
+    </div>
+  </div>
+</div>
 
 <footer class="footer">
   <p>&copy; 2025 SmartLibrary</p>

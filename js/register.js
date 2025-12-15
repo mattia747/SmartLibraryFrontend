@@ -1,196 +1,170 @@
-// Validazione form di registrazione SmartLibrary
-
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('.hero-form');
+  if (!form) {
+    return;
+  }
+  
+  const nomeInput = document.getElementById('nome');
+  const cognomeInput = document.getElementById('cognome');
+  const usernameInput = document.getElementById('username');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  
+  const nomeError = document.getElementById('nomeError');
+  const cognomeError = document.getElementById('cognomeError');
+  const usernameError = document.getElementById('usernameError');
+  const emailError = document.getElementById('emailError');
+  const passwordError = document.getElementById('passwordError');
+  
+  if (!nomeInput || !cognomeInput || !usernameInput || !emailInput || !passwordInput) {
+    return;
+  }
+  if (!nomeError || !cognomeError || !usernameError || !emailError || !passwordError) {
+    return;
+  }
 
-  // Aggiungi event listener al submit del form
+  function showError(errorElement, message, inputElement = null) {
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+    if (inputElement) {
+      inputElement.classList.add('input-error');
+    }
+  }
+
+  function hideError(errorElement, inputElement = null) {
+    errorElement.textContent = '';
+    errorElement.classList.remove('show');
+    if (inputElement) {
+      inputElement.classList.remove('input-error');
+    }
+  }
+
+  nomeInput.addEventListener('input', () => {
+    hideError(nomeError, nomeInput);
+  });
+
+  cognomeInput.addEventListener('input', () => {
+    hideError(cognomeError, cognomeInput);
+  });
+
+  usernameInput.addEventListener('input', () => {
+    hideError(usernameError, usernameInput);
+  });
+
+  emailInput.addEventListener('input', () => {
+    hideError(emailError, emailInput);
+  });
+
+  passwordInput.addEventListener('input', () => {
+    hideError(passwordError, passwordInput);
+  });
+
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Rimuovi tutti gli errori precedenti
-    clearErrors();
+    hideError(nomeError, nomeInput);
+    hideError(cognomeError, cognomeInput);
+    hideError(usernameError, usernameInput);
+    hideError(emailError, emailInput);
+    hideError(passwordError, passwordInput);
 
-    // Ottieni i valori dei campi
-    const nome = form.querySelector('input[type="text"]:nth-of-type(1)').value.trim();
-    const cognome = form.querySelector('input[type="text"]:nth-of-type(2)').value.trim();
-    const eta = form.querySelector('input[type="number"]').value.trim();
-    const username = form.querySelector('#username').value.trim();
-    const email = form.querySelector('input[type="email"]').value.trim();
-    const password = form.querySelector('input[type="password"]').value;
+    const nome = nomeInput.value.trim();
+    const cognome = cognomeInput.value.trim();
+    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
     const generi = form.querySelectorAll('input[type="checkbox"]:checked');
 
     let isValid = true;
 
-    // Validazione Nome
     if (nome === '') {
-      showError(form.querySelector('input[type="text"]:nth-of-type(1)'), 'Il nome è obbligatorio');
+      showError(nomeError, 'Nome obbligatorio', nomeInput);
       isValid = false;
     }
 
-    // Validazione Cognome
     if (cognome === '') {
-      showError(form.querySelector('input[type="text"]:nth-of-type(2)'), 'Il cognome è obbligatorio');
+      showError(cognomeError, 'Cognome obbligatorio', cognomeInput);
       isValid = false;
     }
 
-    // Validazione Età
-    if (eta === '') {
-      showError(form.querySelector('input[type="number"]'), 'L\'età è obbligatoria');
-      isValid = false;
-    }
-
-    // Validazione Username
     if (username === '') {
-      showError(form.querySelector('#username'), 'Lo username è obbligatorio');
+      showError(usernameError, 'Username obbligatorio', usernameInput);
       isValid = false;
     } else if (username.length < 3) {
-      showError(form.querySelector('#username'), 'Lo username deve contenere almeno 3 caratteri');
+      showError(usernameError, 'Lo username deve contenere almeno 3 caratteri', usernameInput);
       isValid = false;
     } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      showError(form.querySelector('#username'), 'Lo username può contenere solo lettere, numeri e underscore');
+      showError(usernameError, 'Lo username può contenere solo lettere, numeri e underscore', usernameInput);
       isValid = false;
     }
 
-    // Validazione Email
     if (email === '') {
-      showError(form.querySelector('input[type="email"]'), 'L\'email è obbligatoria');
+      showError(emailError, 'Email obbligatoria', emailInput);
       isValid = false;
     } else if (!isValidEmail(email)) {
-      showError(form.querySelector('input[type="email"]'), 'Inserisci un\'email valida (es: esempio@email.com)');
+      showError(emailError, 'Inserisci un\'email valida (es: esempio@email.com)', emailInput);
       isValid = false;
     }
 
-    // Validazione Password
     if (password === '') {
-      showError(form.querySelector('input[type="password"]'), 'La password è obbligatoria');
+      showError(passwordError, 'Password obbligatoria', passwordInput);
       isValid = false;
     } else if (!isValidPassword(password)) {
-      showError(form.querySelector('input[type="password"]'),
-        'La password deve contenere almeno 8 caratteri, una maiuscola, una minuscola, un numero e un carattere speciale');
+      showError(passwordError, 'La password deve contenere almeno 8 caratteri, una maiuscola, una minuscola, un numero e un carattere speciale', passwordInput);
       isValid = false;
     }
 
-    // Validazione Generi (solo se esiste il contenitore dei generi)
     const generiBox = document.querySelector('.generi-box');
     if (generiBox && generi.length === 0) {
-      showError(generiBox, 'Seleziona almeno un genere');
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message show';
+      errorDiv.textContent = 'Seleziona almeno un genere';
+      errorDiv.style.color = '#e74c3c';
+      generiBox.style.borderColor = '#e74c3c';
+      if (!generiBox.querySelector('.error-message')) {
+        generiBox.appendChild(errorDiv);
+      }
       isValid = false;
     }
 
-    // Se tutto è valido, prepara i dati per l'invio
     if (isValid) {
       const generiSelezionati = Array.from(generi).map(checkbox => checkbox.value);
 
-      // Dati completi lato frontend (se ti servono in futuro)
       const userData = {
         nome: nome,
         cognome: cognome,
-        eta: parseInt(eta),
         username: username,
         email: email,
         password: password,
         generi: generiSelezionati
       };
 
-      console.log('Dati completi lato frontend:', userData);
-
-      // Payload per il backend Spring Boot
       const backendPayload = {
         username: username,
         email: email,
         password: password
       };
 
-      console.log('Payload inviato al backend:', backendPayload);
-
-      // Invia i dati al backend
-      sendToBackend(backendPayload);
+      sendToBackend(backendPayload, showError, hideError, usernameError, emailError, usernameInput, emailInput);
     }
   });
 });
 
-// Funzione per validare il formato email
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
-// Funzione per validare la password
 function isValidPassword(password) {
-  // Almeno 8 caratteri
   if (password.length < 8) return false;
-
-  // Almeno una maiuscola
   if (!/[A-Z]/.test(password)) return false;
-
-  // Almeno una minuscola
   if (!/[a-z]/.test(password)) return false;
-
-  // Almeno un numero
   if (!/[0-9]/.test(password)) return false;
-
-  // Almeno un carattere speciale
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return false;
 
   return true;
 }
 
-// Funzione per mostrare errori
-function showError(element, message) {
-  if (!element) {
-    console.warn('showError chiamata con un elemento nullo:', message);
-    return;
-  }
-  // Crea elemento errore
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-message';
-  errorDiv.textContent = message;
-  errorDiv.style.color = '#ff4444';
-  errorDiv.style.fontSize = '0.85rem';
-  errorDiv.style.marginTop = '0.3rem';
-  errorDiv.style.fontWeight = '500';
-
-  // Aggiungi bordo rosso all'input
-  if (element.tagName === 'INPUT') {
-    element.style.borderColor = '#ff4444';
-    element.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
-
-    // Inserisci l'errore dopo l'input
-    element.parentElement.insertBefore(errorDiv, element.nextSibling);
-  } else {
-    // Per la generi-box
-    element.style.borderColor = '#ff4444';
-    element.appendChild(errorDiv);
-  }
-}
-
-// Funzione per rimuovere tutti gli errori
-function clearErrors() {
-  // Rimuovi messaggi di errore
-  const errors = document.querySelectorAll('.error-message');
-  errors.forEach(error => error.remove());
-
-  // Rimuovi bordi rossi dagli input
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => {
-    input.style.borderColor = '';
-    input.style.boxShadow = '';
-  });
-
-  // Rimuovi bordo rosso dalla generi-box
-  const generiBox = document.querySelector('.generi-box');
-  if (generiBox) {
-    generiBox.style.borderColor = '';
-  }
-
-  // Rimuovi messaggio di successo se presente
-  const successMsg = document.querySelector('.success-message');
-  if (successMsg) {
-    successMsg.remove();
-  }
-}
-
-// Funzione per mostrare messaggio di successo
 function showSuccessMessage() {
   const form = document.querySelector('.hero-form');
   const successDiv = document.createElement('div');
@@ -207,14 +181,12 @@ function showSuccessMessage() {
 
   form.appendChild(successDiv);
 
-  // Rimuovi il messaggio dopo 3 secondi
   setTimeout(() => {
     successDiv.remove();
   }, 3000);
 }
 
-// Funzione per inviare dati al backend
-function sendToBackend(userData) {
+function sendToBackend(userData, showError, hideError, usernameError, emailError, usernameInput, emailInput) {
   fetch('http://localhost:8080/auth/register', {
     method: 'POST',
     headers: {
@@ -223,24 +195,100 @@ function sendToBackend(userData) {
     body: JSON.stringify(userData)
   })
   .then(async response => {
-    const data = await response.json().catch(() => ({}));
+    let data = {};
+    const contentType = response.headers.get('content-type');
+    
+    const text = await response.text();
+    
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { message: text || 'Errore durante la registrazione' };
+      }
+    } else {
+      data = { message: 'Errore durante la registrazione' };
+    }
+    
     if (response.ok) {
-      console.log('Success:', data);
-      // Mostra messaggio di successo
       showSuccessMessage();
-      // Reindirizza al login dopo un breve delay
       setTimeout(() => {
         window.location.href = 'login.html';
       }, 1500);
     } else {
-      // Gestisci errori dal backend
-      const errorMessage = data.message || data.error || 'Errore durante la registrazione';
-      console.error('Error:', errorMessage);
-      alert('Errore: ' + errorMessage);
+      const errorMessage = data.message || data.error || data.details || data.title || 'Errore durante la registrazione';
+      
+      hideError(usernameError, usernameInput);
+      hideError(emailError, emailInput);
+      
+      let usernameExists = false;
+      let emailExists = false;
+      
+      if (data.username) {
+        usernameExists = true;
+        showError(usernameError, data.username, usernameInput);
+      }
+      if (data.email) {
+        emailExists = true;
+        showError(emailError, data.email, emailInput);
+      }
+      
+      if (data.errors && Array.isArray(data.errors)) {
+        data.errors.forEach(err => {
+          const field = err.field || err.path || '';
+          const msg = err.defaultMessage || err.message || '';
+          if (field.toLowerCase().includes('username')) {
+            usernameExists = true;
+            showError(usernameError, msg || 'Username non valido', usernameInput);
+          } else if (field.toLowerCase().includes('email')) {
+            emailExists = true;
+            showError(emailError, msg || 'Email non valida', emailInput);
+          }
+        });
+      }
+      
+      if (!usernameExists && !emailExists) {
+        const errorLower = errorMessage.toLowerCase();
+        
+        const isUsernameError = errorLower.includes('username') || errorLower.includes('utente') || errorLower.includes('nome utente');
+        const isEmailError = errorLower.includes('email') || errorLower.includes('mail');
+        const isDuplicateError = errorLower.includes('esiste') || errorLower.includes('già') || errorLower.includes('duplicat') || errorLower.includes('already') || errorLower.includes('taken') || errorLower.includes('exists');
+        
+        if (isUsernameError && isEmailError) {
+          if (isDuplicateError) {
+            showError(usernameError, 'Username già esistente', usernameInput);
+            showError(emailError, 'Email già esistente', emailInput);
+          } else {
+            showError(usernameError, errorMessage, usernameInput);
+            showError(emailError, errorMessage, emailInput);
+          }
+        } else if (isUsernameError) {
+          if (isDuplicateError) {
+            showError(usernameError, 'Username già esistente', usernameInput);
+          } else {
+            showError(usernameError, errorMessage, usernameInput);
+          }
+        } else if (isEmailError) {
+          if (isDuplicateError) {
+            showError(emailError, 'Email già esistente', emailInput);
+          } else {
+            showError(emailError, errorMessage, emailInput);
+          }
+        } else {
+          if (errorMessage !== 'Errore durante la registrazione') {
+            showError(usernameError, errorMessage, usernameInput);
+            showError(emailError, errorMessage, emailInput);
+          } else {
+            showError(usernameError, 'Errore durante la registrazione. Controlla i dati inseriti.', usernameInput);
+            showError(emailError, 'Errore durante la registrazione. Controlla i dati inseriti.', emailInput);
+          }
+        }
+      }
     }
   })
   .catch((error) => {
-    console.error('Error:', error);
+    hideError(usernameError, usernameInput);
+    hideError(emailError, emailInput);
     alert('Si è verificato un errore durante la registrazione. Riprova più tardi.');
   });
 }

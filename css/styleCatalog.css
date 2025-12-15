@@ -1,4 +1,3 @@
-/* Reset molto semplice */
 * {
   margin: 0;
   padding: 0;
@@ -25,7 +24,6 @@ body {
   min-height: 100vh;
 }
 
-/* Navbar */
 .header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: var(--white);
@@ -50,6 +48,7 @@ body {
 .nav-links {
   list-style: none;
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -70,14 +69,12 @@ body {
   transform: translateY(-2px);
 }
 
-/* Main */
 .main {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem;
 }
 
-/* Hero section del catalogo */
 .hero-catalog {
   text-align: center;
   padding: 3rem 2rem;
@@ -117,7 +114,6 @@ body {
   position: relative;
 }
 
-/* Grid di carte libri */
 .books-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -182,7 +178,6 @@ body {
   font-style: italic;
 }
 
-/* Paginazione */
 .pagination {
   display: flex;
   justify-content: center;
@@ -231,7 +226,6 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* Footer */
 .footer {
   text-align: center;
   padding: 1.5rem;
@@ -241,7 +235,6 @@ body {
   margin-top: 2rem;
 }
 
-/* Responsive layout generale */
 @media (max-width: 968px) {
   .hero-catalog h1 {
     font-size: 2rem;
@@ -285,10 +278,9 @@ body {
   }
 }
 
-/* Barra di ricerca nel catalogo */
 .search-bar {
   margin-top: 2rem;
-  max-width: 680px; /* leggermente più larga la barra */
+  max-width: 680px;
   margin-left: auto;
   margin-right: auto;
   text-align: left;
@@ -304,10 +296,9 @@ body {
   opacity: 0.9;
 }
 
-/* Contenitore ricerca + filtro + bottone */
 .search-bar-inner {
   display: grid;
-  grid-template-columns: 2fr auto auto; /* campo di ricerca più largo */
+  grid-template-columns: 2fr auto auto;
   align-items: center;
   gap: 0.8rem;
   background: rgba(255, 255, 255, 0.15);
@@ -317,14 +308,13 @@ body {
   backdrop-filter: blur(6px);
 }
 
-/* Campo di ricerca */
 .search-input {
   width: 100%;
   border: none;
   outline: none;
   padding: 0.7rem 1rem;
   border-radius: 999px;
-  font-size: 1.05rem; /* leggermente più grande */
+  font-size: 1.05rem;
   font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #222;
   background: #ffffff;
@@ -334,7 +324,6 @@ body {
   color: #999;
 }
 
-/* Select del genere - versione più curata */
 .genre-select {
   border: none;
   outline: none;
@@ -350,12 +339,10 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   border: 1px solid rgba(0,0,0,0.06);
 
-  /* Rimuove lo stile nativo del select */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 
-  /* Icona della freccia custom */
   background-image:
     linear-gradient(135deg, #ffffff, #f3f6f9),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Cpath fill='%23666' d='M1.1.75L4.5 4.15 7.9.75 9 1.85 4.5 6.35 0 1.85z'/%3E%3C/svg%3E");
@@ -378,7 +365,6 @@ body {
   outline: none;
 }
 
-/* Bottone di ricerca */
 .search-button {
   border: none;
   outline: none;
@@ -400,7 +386,6 @@ body {
   box-shadow: 0 6px 16px rgba(0,0,0,0.22);
 }
 
-/* Responsive barra ricerca */
 @media (max-width: 600px) {
   .search-bar-inner {
     display: flex;
@@ -429,38 +414,31 @@ body {
   }
 }
 
-/* ========================== */
-/*          MODAL             */
-/* ========================== */
 
-/* Overlay del modal */
 .book-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  display: none;                 /* di base nascosto */
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 999;
 }
 
-/* classe per mostrarlo */
 .book-modal-overlay.show {
   display: flex;
 }
 
-/* Contenitore principale del modal */
 .book-modal {
   background: #f7f9fb;
   border-radius: 18px;
-  max-width: 1080px;  /* prima era 900px → +1/5 circa */
+  max-width: 1080px;
   width: 95%;
   padding: 1.8rem 2rem 1.3rem;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
   position: relative;
 }
 
-/* Pulsante X chiudi */
 .book-modal-close {
   position: absolute;
   top: 0.8rem;
@@ -479,7 +457,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Layout interno: copertina + info */
 .book-modal-content {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -495,7 +472,6 @@ body {
   box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
 
-/* Testo info */
 .book-modal-info h2 {
   font-size: 1.5rem;
   color: var(--primary-dark);
@@ -525,7 +501,6 @@ body {
   line-height: 1.4;
 }
 
-/* Azioni: disponibilità + bottone Prenota */
 .book-modal-actions {
   margin-top: 1rem;
   display: flex;
@@ -540,14 +515,13 @@ body {
 }
 
 .book-availability.available {
-  color: #1f9d55;      /* verde */
+  color: #1f9d55;
 }
 
 .book-availability.unavailable {
-  color: #e3342f;      /* rosso */
+  color: #e3342f;
 }
 
-/* Bottone Prenota nel modal */
 .book-modal-cta {
   padding: 0.75rem 1.8rem;
   border-radius: 999px;
@@ -572,7 +546,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Navigazione prev/next */
 .book-modal-nav {
   display: flex;
   justify-content: space-between;
@@ -603,7 +576,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Sezione Recensioni */
 .reviews-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -716,7 +688,6 @@ body {
   font-style: italic;
 }
 
-/* Responsive modal */
 @media (max-width: 700px) {
   .book-modal {
     padding: 1.2rem 1.1rem 1rem;
@@ -749,5 +720,72 @@ body {
   .book-modal-actions {
     justify-content: center;
   }
+}
+
+.alert-modal {
+  display: none;
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+}
+
+.alert-modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-modal-content {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+  border-top: 4px solid var(--primary);
+}
+
+.alert-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.alert-modal-text {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.alert-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.btn-modal {
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.btn-modal-primary {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.btn-modal-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
 }
 

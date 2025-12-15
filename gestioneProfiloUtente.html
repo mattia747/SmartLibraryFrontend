@@ -5,12 +5,10 @@
   <title>Profilo - SmartLibrary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- CSS -->
   <link rel="stylesheet" href="css/styleGestioneProfiloUtente.css">
   <link rel="icon" type="image/x-icon" href="img\favicon.ico">
 
@@ -44,14 +42,11 @@
       <h2>Prenotazioni attive</h2>
     </div>
 
-    <!-- Error message -->
     <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-    <!-- Loading state -->
     <div id="profileLoading" class="loading">Caricamento dati profilo...</div>
 
     <div class="books-container" id="booksContainer" style="display: none;">
-      <!-- Le prenotazioni verranno generate dinamicamente -->
     </div>
   </section>
 </main>
@@ -60,10 +55,11 @@
   <p>&copy; 2025 SmartLibrary</p>
 </footer>
 
-<!-- Modal dettagli libro -->
 <div class="modal" id="bookModal">
   <div class="modal-content">
     <button class="modal-close" id="modalClose">×</button>
+
+    <div id="message-container"></div>
 
     <div class="modal-header-section">
       <div class="modal-book-cover">
@@ -93,7 +89,6 @@
       </div>
     </div>
 
-    <!-- Sezione Recensioni -->
     <div class="reviews-section">
       <button class="reviews-toggle" id="reviews-toggle">
         <span>Recensioni</span>
@@ -102,7 +97,6 @@
       </button>
 
       <div class="reviews-content" id="reviews-content" style="display: none;">
-        <!-- Form per lasciare recensione -->
         <div class="review-form-section" id="review-form-section">
           <h4>Lascia una recensione</h4>
           <div class="star-rating-input">
@@ -129,16 +123,13 @@
           </button>
         </div>
 
-        <!-- Lista recensioni -->
         <div id="reviews-list" class="reviews-list">
-          <!-- Le recensioni verranno caricate qui -->
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal conferma eliminazione account -->
 <div class="confirm-modal" id="deleteAccountModal">
   <div class="confirm-modal-content">
     <h3 class="confirm-modal-title">Conferma eliminazione account</h3>
@@ -162,7 +153,16 @@
   </div>
 </div>
 
-<!-- JavaScript -->
+<div class="alert-modal" id="alertModal">
+  <div class="alert-modal-content">
+    <h3 class="alert-modal-title" id="alertModalTitle">Accesso richiesto</h3>
+    <p class="alert-modal-text" id="alertModalText"></p>
+    <div class="alert-modal-actions">
+      <button class="btn-modal btn-modal-primary" id="alertModalOk">Ok</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/gestioneProfiloUtente.js"></script>
 </body>
 </html>

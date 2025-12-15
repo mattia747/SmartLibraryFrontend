@@ -22,9 +22,7 @@ body {
   min-height: 100vh;
 }
 
-/* =========================
-   HEADER & NAVBAR
-   ========================= */
+
 .header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: var(--white);
@@ -46,7 +44,6 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* Lista link navbar */
 .nav-links {
   list-style: none;
   display: flex;
@@ -59,7 +56,6 @@ body {
   align-items: center;
 }
 
-/* Link e button della navbar allineati uguali */
 .nav-links a,
 .nav-links button {
   color: var(--white);
@@ -84,18 +80,14 @@ body {
   transform: translateY(-2px);
 }
 
-/* =========================
-   MAIN LAYOUT
-   ========================= */
+
 .main {
   max-width: 1400px;
   margin: 2rem auto;
   padding: 0 1.5rem 2rem;
 }
 
-/* =========================
-   HEADER ADMIN
-   ========================= */
+
 .admin-header {
   display: flex;
   justify-content: space-between;
@@ -113,9 +105,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* =========================
-   BUTTON ADMIN
-   ========================= */
+
 .btn-admin {
   padding: 0.8rem 1.5rem;
   border-radius: var(--radius);
@@ -127,7 +117,6 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Pulsante aggiungi libro */
 .btn-add {
   background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
   color: var(--white);
@@ -138,7 +127,6 @@ body {
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
 }
 
-/* Pulsanti elimina (anche logout) */
 .btn-delete {
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   color: var(--white);
@@ -155,9 +143,7 @@ body {
   border: 1px solid rgba(255,255,255,0.4);
 }
 
-/* =========================
-   SEZIONE AGGIUNGI LIBRO
-   ========================= */
+
 .add-book-section {
   background: var(--white);
   padding: 2rem;
@@ -217,9 +203,7 @@ body {
   margin-top: 0.5rem;
 }
 
-/* =========================
-   CATALOGO LIBRI
-   ========================= */
+
 .hero-catalog {
   margin-bottom: 1.5rem;
 }
@@ -236,7 +220,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Search bar */
 .search-bar {
   margin-bottom: 1.5rem;
 }
@@ -280,14 +263,12 @@ body {
   transform: translateY(-1px);
 }
 
-/* Griglia libri */
 .books-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.5rem;
 }
 
-/* Card admin */
 .book-card-admin {
   position: relative;
 }
@@ -331,9 +312,7 @@ body {
   justify-content: center;
 }
 
-/* =========================
-   MODAL LIBRO
-   ========================= */
+
 .book-modal-overlay {
   position: fixed;
   inset: 0;
@@ -411,7 +390,6 @@ body {
   color: #444;
 }
 
-/* Disponibilità */
 .book-availability {
   font-weight: 600;
   font-size: 0.95rem;
@@ -424,9 +402,7 @@ body {
   margin: 1.2rem 0;
 }
 
-/* =========================
-   RECENSIONI ADMIN
-   ========================= */
+
 .reviews-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -493,13 +469,19 @@ body {
 
 .review-admin-item {
   position: relative;
-  padding-right: 3rem;
+}
+
+.review-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--grey);
 }
 
 .review-delete-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
 }
 
 .review-header {
@@ -542,9 +524,7 @@ body {
   font-style: italic;
 }
 
-/* =========================
-   MESSAGGI
-   ========================= */
+
 .hidden {
   display: none;
 }
@@ -568,9 +548,7 @@ body {
   border-left: 4px solid #3c3;
 }
 
-/* =========================
-   FOOTER
-   ========================= */
+
 .footer {
   text-align: center;
   padding: 1.5rem;
@@ -578,9 +556,7 @@ body {
   color: #777;
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
+
 @media (max-width: 768px) {
   .book-modal-content {
     flex-direction: column;

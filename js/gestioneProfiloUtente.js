@@ -22,51 +22,131 @@ function hideLoading() {
   document.getElementById('booksContainer').style.display = 'grid';
 }
 
-// =========================
-// Profilo utente
-// =========================
+function showAlert(title, message, onConfirm = null) {
+  const alertModal = document.getElementById('alertModal');
+  const alertTitle = document.getElementById('alertModalTitle');
+  const alertText = document.getElementById('alertModalText');
+  const alertOk = document.getElementById('alertModalOk');
+  
+  if (!alertModal || !alertTitle || !alertText || !alertOk) return;
+  
+  alertTitle.textContent = title;
+  alertText.textContent = message;
+  
+  const newOkBtn = alertOk.cloneNode(true);
+  alertOk.parentNode.replaceChild(newOkBtn, alertOk);
+  
+  newOkBtn.addEventListener('click', () => {
+    closeAlert();
+    if (onConfirm) onConfirm();
+  });
+  
+  alertModal.addEventListener('click', (e) => {
+    if (e.target === alertModal) {
+      closeAlert();
+      if (onConfirm) onConfirm();
+    }
+  });
+  
+  alertModal.classList.add('show');
+}
+
+function closeAlert() {
+  const alertModal = document.getElementById('alertModal');
+  if (alertModal) {
+    alertModal.classList.remove('show');
+  }
+}
+
+function showMessage(message, type = 'success') {
+  const bookModal = document.getElementById('bookModal');
+  let messageContainer = document.getElementById('message-container');
+  
+  if (!bookModal) {
+    messageContainer = document.getElementById('message-container');
+    if (!messageContainer) return;
+  } else {
+    if (!messageContainer) {
+      const modalContent = bookModal.querySelector('.modal-content');
+      if (!modalContent) return;
+      messageContainer = document.createElement('div');
+      messageContainer.id = 'message-container';
+      const modalClose = modalContent.querySelector('.modal-close');
+      if (modalClose && modalClose.nextSibling) {
+        modalContent.insertBefore(messageContainer, modalClose.nextSibling);
+      } else {
+        modalContent.insertBefore(messageContainer, modalContent.firstChild.nextSibling);
+      }
+    }
+  }
+  
+  const className =
+    type === 'success' ? 'success-message' : 'error-message-custom';
+  messageContainer.innerHTML = `<div class="${className}">${message}</div>`;
+  
+  messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  
+  setTimeout(() => {
+    if (messageContainer) {
+      messageContainer.innerHTML = '';
+    }
+  }, 5000);
+}
 
 async function loadProfile() {
   const token = getToken();
-  console.log('Token recuperato:', token ? 'Presente' : 'Mancante');
 
   if (!token) {
-    showError('Non sei autenticato. Effettua il login per accedere al profilo.');
     hideLoading();
-    setTimeout(() => window.location.href = 'login.html', 1500);
+    showAlert(
+      'Accesso richiesto',
+      'Per accedere alla sezione profilo è necessario aver effettuato l\'accesso.',
+      () => {
+        window.location.href = 'login.html';
+      }
+    );
     return;
   }
 
   try {
     const headers = authHeaders();
-    console.log('Headers inviati:', headers);
-    console.log('Chiamata a:', `${API_BASE_URL}/auth/me`);
 
     const res = await fetch(`${API_BASE_URL}/auth/me`, { headers });
 
-    console.log('Risposta status:', res.status);
-
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
       localStorage.removeItem('authToken');
-      showError('Sessione scaduta. Effettua nuovamente il login.');
-      setTimeout(() => window.location.href = 'login.html', 2000);
       hideLoading();
+      showAlert(
+        'Accesso richiesto',
+        'Per accedere alla sezione profilo è necessario aver effettuato l\'accesso.',
+        () => {
+          window.location.href = 'login.html';
+        }
+      );
       return;
     }
     if (!res.ok) {
       const errorText = await res.text();
-      console.error('Errore risposta:', errorText);
       throw new Error(`Errore ${res.status}: ${errorText}`);
     }
 
     const data = await res.json();
-    console.log('Dati profilo ricevuti:', data);
     displayProfile(data);
     hideLoading();
   } catch (err) {
-    console.error('Errore profilo:', err);
-    showError('Impossibile caricare il profilo: ' + err.message);
-    hideLoading();
+    if (err.message.includes('403') || err.message.includes('401')) {
+      hideLoading();
+      showAlert(
+        'Accesso richiesto',
+        'Per accedere alla sezione profilo è necessario aver effettuato l\'accesso.',
+        () => {
+          window.location.href = 'login.html';
+        }
+      );
+    } else {
+      showError('Impossibile caricare il profilo: ' + err.message);
+      hideLoading();
+    }
   }
 }
 
@@ -77,16 +157,12 @@ function displayProfile(data) {
   const profileName = document.getElementById('profileName');
   const profileEmail = document.getElementById('profileEmail');
 
-  // Nome utente
   const username = data.username || "Utente";
 
-  // Metto "Ciao NomeUtente"
   profileName.textContent = `Ciao ${username}`;
 
-  // Email
   profileEmail.textContent = data.email || "-";
 
-  // Foto profilo o iniziale
   if (data.profileImageUrl) {
     profilePic.style.backgroundImage = `url(${data.profileImageUrl})`;
     profilePicText.style.display = "none";
@@ -97,14 +173,11 @@ function displayProfile(data) {
   }
 }
 
-
-// =========================
-// Prenotazioni utente
-// =========================
-
 async function loadReservations() {
   const token = getToken();
-  if (!token) return;
+  if (!token) {
+    return;
+  }
 
   const container = document.getElementById('booksContainer');
   container.innerHTML = '<div class="loading">Caricamento prenotazioni...</div>';
@@ -114,14 +187,22 @@ async function loadReservations() {
       headers: authHeaders()
     });
 
+    if (res.status === 401 || res.status === 403) {
+      container.innerHTML = '';
+      return;
+    }
+
     if (!res.ok) throw new Error(`Errore ${res.status}`);
 
     const reservations = await res.json();
     renderReservations(reservations);
   } catch (err) {
-    console.error('Errore prenotazioni:', err);
-    container.innerHTML =
-      '<div class="error-message">Errore nel caricare le prenotazioni.</div>';
+    if (err.message.includes('403') || err.message.includes('401')) {
+      container.innerHTML = '';
+    } else {
+      container.innerHTML =
+        '<div class="error-message">Errore nel caricare le prenotazioni.</div>';
+    }
   } finally {
     hideLoading();
   }
@@ -141,7 +222,6 @@ async function renderReservations(reservations) {
     try {
       let bookData = null;
 
-      // Dettagli libro (per copertina + info)
       const bookRes = await fetch(`${API_BASE_URL}/api/books/${r.bookId}`, {
         headers: authHeaders()
       });
@@ -167,15 +247,37 @@ async function renderReservations(reservations) {
 
       const coverUrl = bookData?.coverImageUrl || 'img/logo.png';
 
+      let statusText = '';
+      let statusClass = '';
+      
+      const isActive = r.active === true || r.active === 'true' || r.active === 1 || r.active === '1';
+      
+      const isExplicitlyExpired = r.expired === true || r.expired === 'true';
+      
+      if (isExplicitlyExpired) {
+        statusText = 'Stato: Scaduto';
+        statusClass = 'status-expired';
+      } else if (isActive) {
+        statusText = 'Stato: Attiva';
+        statusClass = 'status-active';
+      } else {
+        statusText = 'Stato: Non attiva';
+        statusClass = 'status-inactive';
+      }
+
       const card = document.createElement('div');
       card.className = 'book-card';
+      if (statusClass === 'status-expired') {
+        card.classList.add('expired-reservation');
+      }
+      
       card.innerHTML = `
         <img src="${coverUrl}" alt="Copertina ${r.bookTitle}" onerror="this.src='img/logo.png'">
         <h3>${r.bookTitle}</h3>
         <p class="reservation-date">Prenotato il: ${reservationDateStr}</p>
         <p class="return-date"><strong>Data restituzione: ${returnDateStr}</strong></p>
-        <p class="reservation-status">
-          ${r.active ? 'Stato: Attiva' : 'Stato: Non attiva'}${r.collected ? ' · Ritirata' : ''}
+        <p class="reservation-status ${statusClass}">
+          ${statusText}
         </p>
       `;
 
@@ -188,7 +290,6 @@ async function renderReservations(reservations) {
             });
             if (bookRes2.ok) data = await bookRes2.json();
           } catch (err) {
-            console.error('Errore nel caricare dettagli libro:', err);
           }
         }
         openBookModal(r, data);
@@ -196,8 +297,6 @@ async function renderReservations(reservations) {
 
       container.appendChild(card);
     } catch (err) {
-      console.error('Errore nel caricare dettagli libro:', err);
-
       const reservationDate = new Date(r.reservationDate);
       const returnDate = new Date(reservationDate);
       returnDate.setMonth(returnDate.getMonth() + 1);
@@ -207,14 +306,34 @@ async function renderReservations(reservations) {
         day: 'numeric'
       });
 
+      let statusText = '';
+      let statusClass = '';
+      
+      const isActive = r.active === true || r.active === 'true' || r.active === 1 || r.active === '1';
+      const isExplicitlyExpired = r.expired === true || r.expired === 'true';
+      
+      if (isExplicitlyExpired) {
+        statusText = 'Stato: Scaduto';
+        statusClass = 'status-expired';
+      } else if (isActive) {
+        statusText = 'Stato: Attiva';
+        statusClass = 'status-active';
+      } else {
+        statusText = 'Stato: Non attiva';
+        statusClass = 'status-inactive';
+      }
+
       const card = document.createElement('div');
       card.className = 'book-card';
+      if (statusClass === 'status-expired') {
+        card.classList.add('expired-reservation');
+      }
       card.innerHTML = `
         <img src="img/logo.png" alt="Copertina ${r.bookTitle}">
         <h3>${r.bookTitle}</h3>
         <p class="reservation-date">Prenotato il: ${r.reservationDate || '-'}</p>
         <p class="return-date"><strong>Data restituzione: ${returnDateStr}</strong></p>
-        <p class="reservation-status">${r.active ? 'Stato: Attiva' : 'Stato: Non attiva'}</p>
+        <p class="reservation-status ${statusClass}">${statusText}</p>
       `;
 
       card.addEventListener('click', async () => {
@@ -226,7 +345,6 @@ async function renderReservations(reservations) {
             });
             if (bookRes.ok) data = await bookRes.json();
           } catch (err2) {
-            console.error('Errore nel caricare dettagli libro:', err2);
           }
         }
         openBookModal(r, data);
@@ -236,10 +354,6 @@ async function renderReservations(reservations) {
     }
   }
 }
-
-// =========================
-// Immagine profilo
-// =========================
 
 const profilePic = document.getElementById('profilePic');
 const profilePicInput = document.getElementById('profilePicInput');
@@ -262,7 +376,6 @@ if (profilePic && profilePicInput) {
 
         const token = getToken();
         if (!token) {
-          console.error('Token non disponibile');
           return;
         }
 
@@ -277,14 +390,11 @@ if (profilePic && profilePicInput) {
           });
 
           if (response.ok) {
-            console.log('Immagine profilo salvata!');
           } else {
             const errorText = await response.text();
-            console.error('Errore nel salvataggio immagine:', errorText);
             alert('Errore nel salvare l\'immagine. Riprova più tardi.');
           }
         } catch (error) {
-          console.error('Errore:', error);
           alert('Errore di connessione. Riprova più tardi.');
         }
       };
@@ -293,17 +403,12 @@ if (profilePic && profilePicInput) {
   });
 }
 
-// =========================
-// Logout + Eliminazione Account
-// =========================
-
 function logout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('authUser');
   window.location.href = 'login.html';
 }
 
-// apre il popup personalizzato
 function openDeleteAccountModal() {
   const modal = document.getElementById('deleteAccountModal');
   if (modal) modal.classList.add('show');
@@ -314,7 +419,6 @@ function closeDeleteAccountModal() {
   if (modal) modal.classList.remove('show');
 }
 
-// chiamata reale al backend per eliminare l'account
 async function performDeleteAccount() {
   const token = getToken();
   if (!token) {
@@ -328,9 +432,6 @@ async function performDeleteAccount() {
       headers: authHeaders()
     });
 
-    console.log('Tentativo eliminazione account - Status:', response.status);
-    console.log('Endpoint usato:', `${API_BASE_URL}/profile/delete`);
-
     if (response.ok) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
@@ -338,8 +439,6 @@ async function performDeleteAccount() {
       window.location.href = 'login.html';
     } else {
       const errorText = await response.text();
-      console.error('Errore eliminazione account - Status:', response.status);
-      console.error('Errore eliminazione account - Response:', errorText);
 
       if (response.status === 403) {
         alert(
@@ -353,16 +452,11 @@ async function performDeleteAccount() {
       }
     }
   } catch (error) {
-    console.error('Errore:', error);
     alert('Errore di connessione. Riprova più tardi.');
   } finally {
     closeDeleteAccountModal();
   }
 }
-
-// =========================
-// Modal libro + Recensioni
-// =========================
 
 let currentBookId = null;
 let selectedRating = 0;
@@ -384,13 +478,28 @@ function openBookModal(reservation, bookData) {
   currentBookId = reservation.bookId;
   selectedRating = 0;
 
+  const messageContainer = document.getElementById('message-container');
+  if (messageContainer) {
+    messageContainer.innerHTML = '';
+  }
+
   document.getElementById('modalTitle').textContent =
     reservation.bookTitle || 'Titolo non disponibile';
   document.getElementById('modalAuthor').textContent = bookData?.author || '-';
   document.getElementById('modalYear').textContent = bookData?.publicationYear || '-';
   document.getElementById('modalGenre').textContent = bookData?.genre || '-';
-  document.getElementById('modalStatus').textContent =
-    reservation.active ? 'Prenotato' : 'Non attivo';
+  const isActive = reservation.active === true || reservation.active === 'true' || reservation.active === 1 || reservation.active === '1';
+  const isExplicitlyExpired = reservation.expired === true || reservation.expired === 'true';
+  
+  let modalStatusText = '';
+  if (isExplicitlyExpired) {
+    modalStatusText = 'Scaduto';
+  } else if (isActive) {
+    modalStatusText = 'Prenotato';
+  } else {
+    modalStatusText = 'Non attivo';
+  }
+  document.getElementById('modalStatus').textContent = modalStatusText;
 
   const coverImg = document.getElementById('modalBookCover');
   if (coverImg && bookData?.coverImageUrl) {
@@ -456,7 +565,6 @@ async function loadReviews(bookId) {
             '<div class="no-reviews">Le recensioni non sono disponibili. Verifica i permessi.</div>';
         }
         if (reviewsCount) reviewsCount.textContent = '(0)';
-        console.warn('Accesso negato alle recensioni (403).');
         isLoadingReviews = false;
         return;
       }
@@ -467,7 +575,6 @@ async function loadReviews(bookId) {
     renderReviews(reviews);
     reviewsLoadFailed = false;
   } catch (err) {
-    console.error('Errore nel caricamento recensioni:', err);
     reviewsLoadFailed = true;
     if (reviewsList) {
       reviewsList.innerHTML =
@@ -517,7 +624,6 @@ function renderReviews(reviews) {
   }).join('');
 }
 
-// Toggle recensioni
 if (reviewsToggle) {
   reviewsToggle.addEventListener('click', () => {
     if (!reviewsContent) return;
@@ -532,7 +638,6 @@ if (reviewsToggle) {
   });
 }
 
-// Gestione stelle
 starInputStars.forEach((star, index) => {
   star.addEventListener('click', () => {
     selectedRating = index + 1;
@@ -547,16 +652,15 @@ starInputStars.forEach((star, index) => {
   });
 });
 
-// Invia recensione
 if (btnSubmitReview) {
   btnSubmitReview.addEventListener('click', async () => {
     if (!currentBookId) {
-      alert('Errore: ID libro non disponibile.');
+      showMessage('Errore: ID libro non disponibile.', 'error');
       return;
     }
 
     if (selectedRating === 0) {
-      alert('Seleziona una valutazione da 1 a 5 stelle.');
+      showMessage('Seleziona una valutazione da 1 a 5 stelle.', 'error');
       return;
     }
 
@@ -575,13 +679,18 @@ if (btnSubmitReview) {
       if (!res.ok) {
         const errorText = await res.text();
         if (res.status === 403) {
-          alert('Non hai i permessi per lasciare una recensione. Verifica di aver prenotato questo libro.');
+          showMessage('Non hai i permessi per lasciare una recensione. Verifica di aver prenotato questo libro.', 'error');
+          return;
+        }
+        const errorLower = errorText.toLowerCase();
+        if (errorLower.includes('already') || errorLower.includes('già') || errorLower.includes('duplicate') || errorLower.includes('already submitted')) {
+          showMessage('Hai già inviato una recensione per questo libro.', 'error');
           return;
         }
         throw new Error(errorText || `Errore ${res.status}`);
       }
 
-      alert('Recensione inviata con successo!');
+      showMessage('Recensione inviata con successo!', 'success');
 
       selectedRating = 0;
       if (reviewCommentInput) reviewCommentInput.value = '';
@@ -591,13 +700,11 @@ if (btnSubmitReview) {
       reviewsLoadFailed = false;
       await loadReviews(currentBookId);
     } catch (err) {
-      console.error('Errore nell\'invio recensione:', err);
-      alert('Errore nell\'invio della recensione: ' + err.message);
+      showMessage('Errore nell\'invio della recensione: ' + err.message, 'error');
     }
   });
 }
 
-// Chiudi modal libro
 if (modalClose) {
   modalClose.addEventListener('click', closeBookModal);
 }
@@ -606,10 +713,6 @@ if (bookModal) {
     if (e.target === bookModal) closeBookModal();
   });
 }
-
-// =========================
-// Eventi DOMContentLoaded
-// =========================
 
 document.addEventListener('DOMContentLoaded', async () => {
   const btnLogout = document.getElementById('btnLogout');

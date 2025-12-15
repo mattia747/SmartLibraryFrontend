@@ -30,32 +30,35 @@
 
     <div class="hero-content">
 
-      <!-- COLONNA SINISTRA -->
-      <form class="hero-form" id="registerForm">
+      <form class="hero-form" id="registerForm" novalidate>
 
         <div class="form-row">
           <div class="field">
             <h3>Nome</h3>
-            <input type="text" placeholder="Inserisci il tuo nome" required>
+            <input type="text" id="nome" placeholder="Inserisci il tuo nome" required>
+            <div class="error-message" id="nomeError"></div>
           </div>
 
           <div class="field">
             <h3>Cognome</h3>
-            <input type="text" placeholder="Inserisci il tuo cognome" required>
+            <input type="text" id="cognome" placeholder="Inserisci il tuo cognome" required>
+            <div class="error-message" id="cognomeError"></div>
           </div>
         </div>
 
         <h3>Username</h3>
         <input type="text" id="username" placeholder="Scegli un username" required>
+        <div class="error-message" id="usernameError"></div>
 
         <h3>Email</h3>
-        <input type="email" placeholder="esempio@email.com" required>
+        <input type="email" id="email" placeholder="esempio@email.com" required>
+        <div class="error-message" id="emailError"></div>
 
         <h3>Password</h3>
-        <input type="password" placeholder="Inserisci una password" required>
+        <input type="password" id="password" placeholder="Inserisci una password" required>
+        <div class="error-message" id="passwordError"></div>
       </form>
 
-      <!-- COLONNA DESTRA -->
       <div class="hero-right">
         <img src="img/logo.png" class="hero-img" alt="Logo SmartLibrary">
 

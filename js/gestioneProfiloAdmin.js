@@ -1,11 +1,8 @@
-// js/gestioneProfiloAdmin.js
-
 const API_BASE_URL = 'http://localhost:8080';
 
 let books = [];
 let selectedBook = null;
 
-// DOM elements
 const container = document.getElementById('books-container');
 const searchForm = document.getElementById('searchForm');
 const searchInput = document.getElementById('searchInput');
@@ -20,9 +17,6 @@ const toggleAddBookBtn = document.getElementById('toggleAddBookBtn');
 const cancelAddBookBtn = document.getElementById('cancelAddBookBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 
-// =====================
-// Utility auth
-// =====================
 function getToken() {
   return localStorage.getItem('authToken');
 }
@@ -34,9 +28,6 @@ function authHeaders() {
     : { 'Content-Type': 'application/json' };
 }
 
-// =====================
-// Verifica accesso admin
-// =====================
 async function checkAdminAccess() {
   const token = getToken();
   if (!token) {
@@ -62,15 +53,11 @@ async function checkAdminAccess() {
 
     return true;
   } catch (err) {
-    console.error('Errore verifica admin:', err);
     window.location.href = 'login.html';
     return false;
   }
 }
 
-// =====================
-// Caricamento libri
-// =====================
 async function loadBooks(params = {}) {
   const { title = '', genre = '' } = params;
   const qs = new URLSearchParams();
@@ -85,7 +72,6 @@ async function loadBooks(params = {}) {
     books = await res.json();
     renderBooks();
   } catch (err) {
-    console.error('Errore nel caricamento libri:', err);
     container.innerHTML = '<p>Errore nel caricamento del catalogo.</p>';
   }
 }
@@ -119,7 +105,6 @@ function renderBooks() {
       </div>
     `;
 
-    // Eventi pulsanti
     const deleteBtn = card.querySelector('[data-action="delete"]');
     const detailBtn = card.querySelector('[data-action="details"]');
 
@@ -130,9 +115,6 @@ function renderBooks() {
   });
 }
 
-// =====================
-// Modal libro
-// =====================
 async function openModal(bookId) {
   let book = books.find((b) => b.id === bookId);
   if (!book) {
@@ -166,7 +148,6 @@ async function openModal(bookId) {
   const copies = selectedBook.copiesAvailable ?? 0;
   document.getElementById('modal-availability').textContent = `Disponibile (${copies} copie)`;
 
-  // Reset recensioni
   const reviewsContent = document.getElementById('reviews-content');
   const reviewsToggle = document.getElementById('reviews-toggle');
   const reviewsList = document.getElementById('reviews-list');
@@ -174,10 +155,9 @@ async function openModal(bookId) {
 
   if (reviewsContent) reviewsContent.style.display = 'none';
   if (reviewsToggle) reviewsToggle.classList.remove('expanded');
-  if (reviewsList) reviewsList.innerHTML = '<div class="loading">Caricamento recensioni...</div>';
-  if (reviewsCount) reviewsCount.textContent = '(0)';
+  if (reviewsList)     reviewsList.innerHTML = '<div class="loading">Caricamento recensioni...</div>';
+    if (reviewsCount) reviewsCount.textContent = '(0)';
 
-  // Carica recensioni
   loadReviews(selectedBook.id);
 
   modalOverlay.classList.add('show');
@@ -188,19 +168,54 @@ function closeModal() {
   selectedBook = null;
 }
 
-// =====================
-// Elimina libro
-// =====================
 async function deleteBook(bookId) {
   if (!confirm('Sei sicuro di voler eliminare questo libro? Questa azione è irreversibile.')) {
     return;
   }
 
   try {
+    const token = getToken();
+    if (!token) {
+      showMessage('Errore: Non sei autenticato. Effettua nuovamente il login.', 'error');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return;
+    }
+
     const res = await fetch(`${API_BASE_URL}/admin/books/${bookId}`, {
       method: 'DELETE',
       headers: authHeaders(),
     });
+
+    if (res.status === 401) {
+      showMessage('Sessione scaduta. Effettua nuovamente il login.', 'error');
+      localStorage.removeItem('authToken');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return;
+    }
+
+    if (res.status === 403) {
+      const altRes = await fetch(`${API_BASE_URL}/api/admin/books/${bookId}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+      
+      if (altRes.ok) {
+        showMessage('Libro eliminato con successo!', 'success');
+        await loadBooks({
+          title: searchInput?.value?.trim() || '',
+          genre: genreSelect?.value || '',
+        });
+        return;
+      }
+      
+      const errorText = await res.text().catch(() => '');
+      showMessage('Accesso negato (403). Verifica: 1) Che tu sia effettivamente admin 2) Che il backend abbia configurato correttamente i permessi 3) Che il token sia valido. ' + (errorText ? 'Errore: ' + errorText : ''), 'error');
+      
+      const isAdmin = await checkAdminAccess();
+      if (!isAdmin) return;
+      
+      return;
+    }
 
     if (!res.ok) {
       const errorText = await res.text();
@@ -213,14 +228,10 @@ async function deleteBook(bookId) {
       genre: genreSelect?.value || '',
     });
   } catch (err) {
-    console.error('Errore eliminazione libro:', err);
     showMessage("Errore nell'eliminazione del libro: " + err.message, 'error');
   }
 }
 
-// =====================
-// Aggiungi libro
-// =====================
 async function onAddBookSubmit(e) {
   e.preventDefault();
 
@@ -256,14 +267,10 @@ async function onAddBookSubmit(e) {
       genre: genreSelect?.value || '',
     });
   } catch (err) {
-    console.error('Errore aggiunta libro:', err);
     showMessage("Errore nell'aggiunta del libro: " + err.message, 'error');
   }
 }
 
-// =====================
-// Recensioni
-// =====================
 async function loadReviews(bookId) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/reviews`, {
@@ -281,7 +288,6 @@ async function loadReviews(bookId) {
     const reviews = await res.json();
     renderReviews(reviews);
   } catch (err) {
-    console.error('Errore nel caricamento recensioni:', err);
     const reviewsList = document.getElementById('reviews-list');
     const reviewsCount = document.getElementById('reviews-count');
     if (reviewsList) {
@@ -329,27 +335,63 @@ function renderReviews(reviews) {
           </div>
           ${review.comment ? `<div class="review-comment">${review.comment}</div>` : ''}
           ${date ? `<div class="review-date">${date}</div>` : ''}
-          <button class="btn-admin btn-delete review-delete-btn"
-                  onclick="deleteReview(${review.id}, ${selectedBook.id})">
-            Elimina
-          </button>
+          <div class="review-actions">
+            <button class="btn-admin btn-delete review-delete-btn"
+                    onclick="deleteReview(${review.id}, ${selectedBook.id})">
+              Elimina
+            </button>
+          </div>
         </div>
       `;
     })
     .join('');
 }
 
-// eliminazione recensione (resta globale per l’onclick inline)
 async function deleteReview(reviewId, bookId) {
   if (!confirm('Sei sicuro di voler eliminare questa recensione?')) {
     return;
   }
 
   try {
+    const token = getToken();
+    if (!token) {
+      showMessage('Errore: Non sei autenticato. Effettua nuovamente il login.', 'error');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return;
+    }
+
     const res = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
       method: 'DELETE',
       headers: authHeaders(),
     });
+
+    if (res.status === 401) {
+      showMessage('Sessione scaduta. Effettua nuovamente il login.', 'error');
+      localStorage.removeItem('authToken');
+      setTimeout(() => window.location.href = 'login.html', 2000);
+      return;
+    }
+
+    if (res.status === 403) {
+      const altRes = await fetch(`${API_BASE_URL}/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+      
+      if (altRes.ok) {
+        showMessage('Recensione eliminata con successo!', 'success');
+        await loadReviews(bookId);
+        return;
+      }
+      
+      const errorText = await res.text().catch(() => '');
+      showMessage('Accesso negato (403). Verifica: 1) Che tu sia effettivamente admin 2) Che il backend abbia configurato correttamente i permessi 3) Che il token sia valido. ' + (errorText ? 'Errore: ' + errorText : ''), 'error');
+      
+      const isAdmin = await checkAdminAccess();
+      if (!isAdmin) return;
+      
+      return;
+    }
 
     if (!res.ok) {
       const errorText = await res.text();
@@ -359,14 +401,10 @@ async function deleteReview(reviewId, bookId) {
     showMessage('Recensione eliminata con successo!', 'success');
     await loadReviews(bookId);
   } catch (err) {
-    console.error('Errore eliminazione recensione:', err);
     showMessage("Errore nell'eliminazione della recensione: " + err.message, 'error');
   }
 }
 
-// =====================
-// Utility UI
-// =====================
 function toggleAddBookForm() {
   addBookSection.classList.toggle('hidden');
 }
@@ -380,9 +418,6 @@ function showMessage(message, type = 'success') {
   }, 5000);
 }
 
-// =====================
-// Logout
-// =====================
 function logout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('authUser');
@@ -390,16 +425,12 @@ function logout() {
   window.location.href = 'login.html';
 }
 
-// =====================
-// Event listeners
-// =====================
 document.addEventListener('DOMContentLoaded', async () => {
   const isAdmin = await checkAdminAccess();
   if (!isAdmin) return;
 
   await loadBooks();
 
-  // Modal
   const closeBtn = document.querySelector('.book-modal-close');
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
@@ -469,5 +500,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Rendo deleteReview visibile globalmente (per l’onclick inline)
 window.deleteReview = deleteReview;

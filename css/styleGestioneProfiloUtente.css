@@ -1,4 +1,4 @@
-/* Reset */
+
 * {
   margin: 0;
   padding: 0;
@@ -23,7 +23,7 @@ body {
   min-height: 100vh;
 }
 
-/* Header */
+
 .header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: var(--white);
@@ -68,7 +68,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Main Container */
 .main {
   max-width: 1400px;
   margin: 2rem auto;
@@ -77,7 +76,6 @@ body {
   gap: 2rem;
 }
 
-/* Sidebar Profilo */
 .profile-sidebar {
   flex: 0 0 300px;
   background: var(--white);
@@ -169,7 +167,6 @@ body {
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
 
-/* Books Section */
 .books-section {
   flex: 1;
   background: var(--white);
@@ -195,7 +192,6 @@ body {
   color: var(--primary);
 }
 
-/* Loading & error */
 .loading {
   text-align: center;
   padding: 40px;
@@ -213,7 +209,47 @@ body {
   border-left: 4px solid #c33;
 }
 
-/* Prenotazioni */
+#message-container {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  background: #efe;
+  color: #3c3;
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin: 0;
+  border-left: 4px solid #3c3;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+.error-message-custom {
+  background: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin: 0;
+  border-left: 4px solid #c33;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .books-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -289,12 +325,38 @@ body {
 
 .book-card .reservation-status {
   font-size: 0.85rem;
-  color: #4CAF50;
   font-weight: 600;
   margin-top: 0.5rem;
 }
 
-/* Modal dettagli libro */
+.book-card .reservation-status.status-active {
+  color: #4CAF50;
+}
+
+.book-card .reservation-status.status-expired {
+  color: #e74c3c;
+  animation: pulse 2s infinite;
+}
+
+.book-card .reservation-status.status-inactive {
+  color: #888;
+}
+
+.book-card.expired-reservation {
+  border: 2px solid #e74c3c;
+  background-color: #fff5f5;
+  opacity: 0.9;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 .modal {
   display: none;
   position: fixed;
@@ -430,7 +492,6 @@ body {
   margin-top: 1.5rem;
 }
 
-/* Bottoni generici nel modal */
 .btn-modal {
   flex: 1;
   padding: 0.8rem 1.2rem;
@@ -462,7 +523,6 @@ body {
   background-color: var(--bg);
 }
 
-/* Upload immagine profilo */
 #profilePicInput {
   display: none;
 }
@@ -474,7 +534,6 @@ body {
   border-radius: 50%;
 }
 
-/* Footer */
 .footer {
   text-align: center;
   padding: 1.5rem;
@@ -483,7 +542,6 @@ body {
   font-weight: 400;
 }
 
-/* Sezione Recensioni */
 .reviews-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -666,7 +724,6 @@ body {
   font-style: italic;
 }
 
-/* Modal conferma eliminazione account */
 .confirm-modal {
   display: none;
   position: fixed;
@@ -732,7 +789,6 @@ body {
   border-color: #c0392b;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .main {
     flex-direction: column;
@@ -782,4 +838,50 @@ body {
   .confirm-modal-content {
     padding: 1.5rem;
   }
+}
+
+.alert-modal {
+  display: none;
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+}
+
+.alert-modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-modal-content {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+  border-top: 4px solid var(--primary);
+}
+
+.alert-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.alert-modal-text {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.alert-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
 }

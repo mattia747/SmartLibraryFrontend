@@ -1,20 +1,15 @@
-// Catalogo collegato al backend Spring Boot
 const API_BASE_URL = 'http://localhost:8080';
 
-// Stato
 let books = [];
 let selectedBook = null;
-// indice del libro attualmente aperto nel modal
 let currentIndex = null;
 
-// DOM
 const container = document.getElementById('books-container');
-const paginationContainer = document.getElementById('pagination'); // non usato ora, ma lasciato per layout
+const paginationContainer = document.getElementById('pagination');
 const searchForm = document.querySelector('.search-bar');
 const searchInput = document.getElementById('searchInput');
 const genreSelect = document.getElementById('genreFilter');
 
-// Modal
 const modalOverlay = document.getElementById('book-modal');
 const modalCover = document.getElementById('modal-cover');
 const modalTitle = document.getElementById('modal-title');
@@ -32,25 +27,36 @@ const reviewsCount = document.getElementById('reviews-count');
 const modalPrev = document.getElementById('modal-prev');
 const modalNext = document.getElementById('modal-next');
 
-
-// ===============================
-// Gestione link Profilo in base al ruolo
-// ===============================
 document.addEventListener('DOMContentLoaded', () => {
   const profileLink = document.getElementById('profileLink');
-  if (!profileLink) return;
+  const loginLogoutLink = document.getElementById('loginLogoutLink');
+  const token = getToken();
 
-  const rawRole = (localStorage.getItem('userRole') || '').toUpperCase();
-
-  // DEBUG: vedi il ruolo che legge
-  console.log("Ruolo utente:", rawRole);
-
-  if (rawRole.includes('ADMIN')) {
-    // Admin → pagina admin
-    profileLink.href = 'gestioneProfiloAdmin.html';
+  if (token) {
+    if (loginLogoutLink) {
+      loginLogoutLink.parentElement.style.display = 'none';
+    }
+    
+    if (profileLink) {
+      profileLink.parentElement.style.display = 'block';
+      const rawRole = (localStorage.getItem('userRole') || '').toUpperCase();
+      
+      if (rawRole.includes('ADMIN')) {
+        profileLink.href = 'gestioneProfiloAdmin.html';
+      } else {
+        profileLink.href = 'gestioneProfiloUtente.html';
+      }
+    }
   } else {
-    // Utente → pagina utente
-    profileLink.href = 'gestioneProfiloUtente.html';
+    if (profileLink) {
+      profileLink.parentElement.style.display = 'none';
+    }
+    
+    if (loginLogoutLink) {
+      loginLogoutLink.textContent = 'Login';
+      loginLogoutLink.href = 'login.html';
+      loginLogoutLink.parentElement.style.display = 'block';
+    }
   }
 });
 
@@ -66,9 +72,6 @@ function authHeaders() {
     : { 'Content-Type': 'application/json' };
 }
 
-// ===============================
-// Caricamento libri dal backend
-// ===============================
 async function loadBooks(params = {}) {
   const { title = '', genre = '' } = params;
   const qs = new URLSearchParams();
@@ -83,7 +86,6 @@ async function loadBooks(params = {}) {
     books = await res.json();
     renderBooks();
   } catch (err) {
-    console.error('Errore nel caricamento libri:', err);
     container.innerHTML = '<p>Errore nel caricamento del catalogo.</p>';
   }
 }
@@ -113,7 +115,6 @@ function renderBooks() {
       <p class="author">Copie disponibili: ${copies}</p>
     `;
 
-    // 👉 tutta la card apre il modal in base all'indice
     card.addEventListener('click', () => {
       openModal(index);
     });
@@ -121,10 +122,6 @@ function renderBooks() {
     container.appendChild(card);
   });
 }
-
-// ===============================
-// Modal
-// ===============================
 
 function openModal(index) {
   if (index < 0 || index >= books.length) return;
@@ -162,7 +159,6 @@ function openModal(index) {
     modalBookButton.disabled = !available;
   }
 
-  // abilita / disabilita i bottoni Prev/Next
   if (modalPrev) {
     modalPrev.disabled = currentIndex <= 0;
   }
@@ -170,13 +166,11 @@ function openModal(index) {
     modalNext.disabled = currentIndex >= books.length - 1;
   }
 
-  // Reset recensioni
   if (reviewsContent) reviewsContent.style.display = 'none';
   if (reviewsToggle) reviewsToggle.classList.remove('expanded');
-  if (reviewsList) reviewsList.innerHTML = '<div class="loading">Caricamento recensioni...</div>';
-  if (reviewsCount) reviewsCount.textContent = '(0)';
+  if (reviewsList)     reviewsList.innerHTML = '<div class="loading">Caricamento recensioni...</div>';
+    if (reviewsCount) reviewsCount.textContent = '(0)';
 
-  // Carica recensioni
   if (book.id) {
     loadReviews(book.id);
   }
@@ -199,7 +193,6 @@ if (modalOverlay) {
   });
 }
 
-// tasto prenota dal modal
 if (modalBookButton) {
   modalBookButton.addEventListener('click', async () => {
     if (!selectedBook) return;
@@ -207,7 +200,6 @@ if (modalBookButton) {
   });
 }
 
-// bottoni avanti / indietro nel modal
 if (modalPrev) {
   modalPrev.addEventListener('click', () => {
     if (currentIndex === null) return;
@@ -225,7 +217,6 @@ if (modalNext) {
   });
 }
 
-// tastiera: Esc, freccia sinistra/destra
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeModal();
@@ -250,13 +241,47 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ===============================
-// Prenotazione
-// ===============================
+function showAlert(title, message, onConfirm = null) {
+  const alertModal = document.getElementById('alertModal');
+  const alertTitle = document.getElementById('alertModalTitle');
+  const alertText = document.getElementById('alertModalText');
+  const alertOk = document.getElementById('alertModalOk');
+  
+  if (!alertModal || !alertTitle || !alertText || !alertOk) return;
+  
+  alertTitle.textContent = title;
+  alertText.textContent = message;
+  
+  const newOkBtn = alertOk.cloneNode(true);
+  alertOk.parentNode.replaceChild(newOkBtn, alertOk);
+  
+  newOkBtn.addEventListener('click', () => {
+    closeAlert();
+    if (onConfirm) onConfirm();
+  });
+  
+  alertModal.addEventListener('click', (e) => {
+    if (e.target === alertModal) {
+      closeAlert();
+      if (onConfirm) onConfirm();
+    }
+  });
+  
+  alertModal.classList.add('show');
+}
+
+function closeAlert() {
+  const alertModal = document.getElementById('alertModal');
+  if (alertModal) {
+    alertModal.classList.remove('show');
+  }
+}
+
 async function reserveBook(bookId) {
   if (!getToken()) {
-    alert('Devi effettuare il login per prenotare.');
-    window.location.href = 'login.html';
+    showAlert('Login richiesto', 'Devi effettuare il login per prenotare.', () => {
+      window.location.href = 'login.html';
+    });
     return;
   }
 
@@ -267,25 +292,22 @@ async function reserveBook(bookId) {
     });
 
     if (res.ok) {
-      alert('Prenotazione confermata! Riceverai una email con i dettagli.');
-      closeModal();
-      await loadBooks({
-        title: searchInput?.value?.trim() || '',
-        genre: genreSelect?.value || ''
+      showAlert('Prenotazione confermata', 'Riceverai una email con i dettagli.', () => {
+        closeModal();
+        loadBooks({
+          title: searchInput?.value?.trim() || '',
+          genre: genreSelect?.value || ''
+        });
       });
     } else {
       const errorText = await res.text();
-      alert(`Errore: ${errorText || 'Prenotazione non riuscita'}`);
+      showAlert('Errore', errorText || 'Prenotazione non riuscita');
     }
   } catch (err) {
-    console.error('Errore prenotazione:', err);
-    alert('Errore durante la prenotazione. Riprova.');
+    showAlert('Errore', 'Errore durante la prenotazione. Riprova.');
   }
 }
 
-// ===============================
-// Recensioni
-// ===============================
 async function loadReviews(bookId) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/reviews`, {
@@ -294,7 +316,6 @@ async function loadReviews(bookId) {
 
     if (!res.ok) {
       if (res.status === 404) {
-        // Nessuna recensione trovata
         renderReviews([]);
         return;
       }
@@ -304,7 +325,6 @@ async function loadReviews(bookId) {
     const reviews = await res.json();
     renderReviews(reviews);
   } catch (err) {
-    console.error('Errore nel caricamento recensioni:', err);
     if (reviewsList) {
       reviewsList.innerHTML = '<div class="no-reviews">Errore nel caricare le recensioni.</div>';
     }
@@ -352,7 +372,6 @@ function renderReviews(reviews) {
     .join('');
 }
 
-// Toggle recensioni
 if (reviewsToggle) {
   reviewsToggle.addEventListener('click', () => {
     if (!reviewsContent) return;
@@ -368,9 +387,6 @@ if (reviewsToggle) {
   });
 }
 
-// ===============================
-// Eventi form ricerca
-// ===============================
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -383,8 +399,4 @@ if (genreSelect) {
   });
 }
 
-// Init
 loadBooks();
-
-
-//inoltre quando sono in catalago (e sono già loggato come admin) se clicclo il collegamento nella navbar per la gestione del profilo, mi fa vedere il profilo dell'utente e non dell'admin

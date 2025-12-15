@@ -1,13 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('SmartLibrary frontend ready!');
-
   const loginForm = document.querySelector('.hero-form');
   if (!loginForm) return;
 
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // Leggi i valori dal form
     const usernameInput = loginForm.querySelector('input[type="text"]');
     const passwordInput = loginForm.querySelector('input[type="password"]');
 
@@ -19,15 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Costruisci il payload come usi in backend (adatta se necessario)
     const payload = {
       username: username,
       password: password
     };
 
-    console.log('Login payload:', payload);
-
-    // Chiamata al backend per autenticazione
     fetch('http://localhost:8080/auth/login', {
       method: 'POST',
       headers: {
@@ -42,19 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
-        console.log('Login success:', data);
-        // Salva il token JWT per le chiamate autenticate
         if (data.token) {
           localStorage.setItem('authToken', data.token);
         }
-        // Salva username (può tornare utile)
         if (data.username) {
           localStorage.setItem('authUser', data.username);
         }
         if (data.role) {
           localStorage.setItem('userRole', data.role);
         }
-        // Controlla se è admin e reindirizza
         const role = data.role || data.roles?.[0] || '';
         if (role === 'ROLE_ADMIN' || role === 'ADMIN' || role.includes('ADMIN')) {
           window.location.href = 'gestioneProfiloAdmin.html';
@@ -63,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       })
       .catch(err => {
-        console.error('Login error:', err);
         alert('Login fallito: ' + err.message);
       });
   });
