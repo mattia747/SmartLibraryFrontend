@@ -73,9 +73,10 @@ function authHeaders() {
 }
 
 async function loadBooks(params = {}) {
-  const { title = '', genre = '' } = params;
+  const { title = '', genre = '', author = '' } = params;
   const qs = new URLSearchParams();
   if (title) qs.append('title', title);
+  if (author) qs.append('author', author);
   if (genre) qs.append('genre', genre);
 
   container.innerHTML = '<p>Caricamento dei libri in corso...</p>';
@@ -294,8 +295,10 @@ async function reserveBook(bookId) {
     if (res.ok) {
       showAlert('Prenotazione confermata', 'Riceverai una email con i dettagli.', () => {
         closeModal();
+        const searchValue = searchInput?.value?.trim() || '';
         loadBooks({
-          title: searchInput?.value?.trim() || '',
+          title: searchValue,
+          author: searchValue,
           genre: genreSelect?.value || ''
         });
       });
@@ -390,12 +393,22 @@ if (reviewsToggle) {
 if (searchForm && searchInput) {
   searchForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    loadBooks({ title: searchInput.value.trim(), genre: genreSelect?.value || '' });
+    const searchValue = searchInput.value.trim();
+    loadBooks({ 
+      title: searchValue, 
+      author: searchValue,
+      genre: genreSelect?.value || '' 
+    });
   });
 }
 if (genreSelect) {
   genreSelect.addEventListener('change', () => {
-    loadBooks({ title: searchInput?.value?.trim() || '', genre: genreSelect.value });
+    const searchValue = searchInput?.value?.trim() || '';
+    loadBooks({ 
+      title: searchValue, 
+      author: searchValue,
+      genre: genreSelect.value 
+    });
   });
 }
 

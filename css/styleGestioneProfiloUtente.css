@@ -348,6 +348,32 @@ body {
   opacity: 0.9;
 }
 
+.btn-cancel-reservation {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+}
+
+.btn-cancel-reservation:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+}
+
+.btn-cancel-reservation:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -787,6 +813,14 @@ body {
 .btn-danger:hover {
   background-color: #c0392b;
   border-color: #c0392b;
+}
+
+.cancel-reservation-modal {
+  border-top-color: #e67e22;
+}
+
+.cancel-reservation-title {
+  color: #e67e22;
 }
 
 @media (max-width: 900px) {

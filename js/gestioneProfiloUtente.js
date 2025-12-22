@@ -208,6 +208,91 @@ async function loadReservations() {
   }
 }
 
+let pendingReservationId = null;
+let pendingBookId = null;
+
+function openCancelReservationModal(reservationId, bookId) {
+  const token = getToken();
+  if (!token) {
+    showAlert('Accesso richiesto', 'Devi effettuare il login per annullare una prenotazione.', () => {
+      window.location.href = 'login.html';
+    });
+    return;
+  }
+
+  if (!reservationId) {
+    showAlert('Errore', 'ID prenotazione non valido.');
+    return;
+  }
+
+  pendingReservationId = reservationId;
+  pendingBookId = bookId;
+  const modal = document.getElementById('cancelReservationModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeCancelReservationModal() {
+  const modal = document.getElementById('cancelReservationModal');
+  if (modal) modal.classList.remove('show');
+  pendingReservationId = null;
+  pendingBookId = null;
+}
+
+async function performCancelReservation() {
+  if (!pendingReservationId) {
+    closeCancelReservationModal();
+    return;
+  }
+
+  const token = getToken();
+  if (!token) {
+    showAlert('Accesso richiesto', 'Devi effettuare il login per annullare una prenotazione.', () => {
+      window.location.href = 'login.html';
+    });
+    closeCancelReservationModal();
+    return;
+  }
+
+  try {
+    // Provo prima con /reservations/{id}
+    let res = await fetch(`${API_BASE_URL}/reservations/${pendingReservationId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+
+    // Se fallisce, provo con /profile/reservations/{id}
+    if (!res.ok && res.status === 404) {
+      res = await fetch(`${API_BASE_URL}/profile/reservations/${pendingReservationId}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      showAlert('Accesso negato', 'Non hai i permessi per annullare questa prenotazione.');
+      closeCancelReservationModal();
+      return;
+    }
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || `Errore ${res.status}`);
+    }
+
+    closeCancelReservationModal();
+    showAlert('Prenotazione annullata', 'La prenotazione è stata annullata con successo. Il libro è ora nuovamente disponibile.', () => {
+      loadReservations();
+    });
+  } catch (err) {
+    closeCancelReservationModal();
+    showAlert('Errore', 'Errore durante l\'annullamento della prenotazione: ' + err.message);
+  }
+}
+
+window.cancelReservation = function(reservationId, bookId) {
+  openCancelReservationModal(reservationId, bookId);
+};
+
 async function renderReservations(reservations) {
   const container = document.getElementById('booksContainer');
 
@@ -279,7 +364,21 @@ async function renderReservations(reservations) {
         <p class="reservation-status ${statusClass}">
           ${statusText}
         </p>
+        ${isActive && !isExplicitlyExpired ? `<button class="btn-cancel-reservation" data-reservation-id="${r.id || r.reservationId}" data-book-id="${r.bookId}">Annulla prenotazione</button>` : ''}
       `;
+
+      // Aggiungi listener per il pulsante annulla
+      if (isActive && !isExplicitlyExpired) {
+        const cancelBtn = card.querySelector('.btn-cancel-reservation');
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const reservationId = cancelBtn.getAttribute('data-reservation-id');
+            const bookId = cancelBtn.getAttribute('data-book-id');
+            await window.cancelReservation(reservationId, bookId);
+          });
+        }
+      }
 
       card.addEventListener('click', async () => {
         let data = bookData;
@@ -334,7 +433,21 @@ async function renderReservations(reservations) {
         <p class="reservation-date">Prenotato il: ${r.reservationDate || '-'}</p>
         <p class="return-date"><strong>Data restituzione: ${returnDateStr}</strong></p>
         <p class="reservation-status ${statusClass}">${statusText}</p>
+        ${isActive && !isExplicitlyExpired ? `<button class="btn-cancel-reservation" data-reservation-id="${r.id || r.reservationId}" data-book-id="${r.bookId}">Annulla prenotazione</button>` : ''}
       `;
+
+      // Aggiungi listener per il pulsante annulla
+      if (isActive && !isExplicitlyExpired) {
+        const cancelBtn = card.querySelector('.btn-cancel-reservation');
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const reservationId = cancelBtn.getAttribute('data-reservation-id');
+            const bookId = cancelBtn.getAttribute('data-book-id');
+            window.cancelReservation(reservationId, bookId);
+          });
+        }
+      }
 
       card.addEventListener('click', async () => {
         let data = null;
@@ -743,6 +856,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (confirmDeleteAccountBtn) {
     confirmDeleteAccountBtn.addEventListener('click', performDeleteAccount);
+  }
+
+  // Event listeners per il modal di annullamento prenotazione
+  const cancelReservationCancel = document.getElementById('cancelReservationCancel');
+  const confirmCancelReservationBtn = document.getElementById('confirmCancelReservation');
+  const cancelReservationModal = document.getElementById('cancelReservationModal');
+
+  if (cancelReservationCancel) {
+    cancelReservationCancel.addEventListener('click', closeCancelReservationModal);
+  }
+
+  if (cancelReservationModal) {
+    cancelReservationModal.addEventListener('click', (e) => {
+      if (e.target === cancelReservationModal) {
+        closeCancelReservationModal();
+      }
+    });
+  }
+
+  if (confirmCancelReservationBtn) {
+    confirmCancelReservationBtn.addEventListener('click', performCancelReservation);
   }
 
   await loadProfile();
